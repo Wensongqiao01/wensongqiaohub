@@ -9,6 +9,12 @@
 </div>
 
 <div class="manage-wrapper">
+  {% if show_saved %}
+  <div style="padding:var(--space-3) var(--space-4);margin-bottom:var(--space-6);background:var(--accent-subtle);border:1px solid var(--accent);border-radius:var(--radius-md);color:var(--text);font-size:var(--text-sm);">
+    ✅ 设置已成功保存
+  </div>
+  {% endif %}
+
   <form method="POST" action="/manage/settings">
     <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
 
@@ -49,6 +55,23 @@
           style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:2px solid var(--border-light)">
       </div>
       {% endif %}
+
+      <div class="form-group">
+        <label class="form-label">首页轮播图片</label>
+        <p class="form-hint" style="margin-top:0;margin-bottom:var(--space-3);">添加多张图片 URL，首页轮播将自动展示。</p>
+        <div id="photo-url-editor">
+          {% for url in photo_urls %}
+          <div class="photo-url-row" style="display:flex;gap:var(--space-2);margin-bottom:var(--space-2);align-items:center;">
+            <input type="url" class="photo-url-input" value="{{ url }}"
+                   style="flex:1;padding:var(--space-1) var(--space-2);border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);"
+                   placeholder="https://example.com/photo.jpg">
+            <button type="button" class="btn btn--danger btn--sm" onclick="removePhotoUrl(this)">✕</button>
+          </div>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="photo_urls" id="field-photo-urls" value="{{ settings.get('photo_urls', '[]') }}">
+        <button type="button" class="btn btn--outline btn--sm" onclick="addPhotoUrl()" style="margin-top:var(--space-2);">+ 添加图片</button>
+      </div>
     </div>
 
     <!-- 站点内容 -->
@@ -100,6 +123,33 @@
       </div>
     </div>
 
+    <!-- 作品分类 -->
+    <div class="settings-section">
+      <div class="settings-section__title">作品分类</div>
+      <p class="form-hint" style="margin-bottom: var(--space-4);">管理作品展示的分类选项。修改 key 会影响已有作品的分类关联。</p>
+
+      <div id="category-editor">
+        {% for cat in project_categories_parsed %}
+        <div class="category-row" style="display:flex;gap:var(--space-2);margin-bottom:var(--space-2);align-items:center;">
+          <input type="text" class="cat-icon" value="{{ cat.icon }}" maxlength="2"
+                 style="width:48px;text-align:center;font-size:1.2em;padding:var(--space-1) var(--space-2);border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);"
+                 placeholder="图标">
+          <input type="text" class="cat-key" value="{{ cat.key }}"
+                 style="flex:1;padding:var(--space-1) var(--space-2);border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);font-family:monospace;"
+                 placeholder="标识符 (key)" pattern="[a-z0-9_-]+" title="只能包含小写字母、数字、下划线和连字符">
+          <input type="text" class="cat-name" value="{{ cat.name }}"
+                 style="flex:2;padding:var(--space-1) var(--space-2);border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);"
+                 placeholder="显示名称">
+          <button type="button" class="btn btn--danger btn--sm" onclick="removeCategory(this)" {% if loop.length <= 1 %}disabled style="opacity:0.3"{% endif %}>✕</button>
+        </div>
+        {% endfor %}
+      </div>
+
+      <input type="hidden" name="project_categories" id="field-project-categories" value="{{ settings.get('project_categories', '[]') }}">
+
+      <button type="button" class="btn btn--outline btn--sm" onclick="addCategory()" style="margin-top:var(--space-2);">+ 添加分类</button>
+    </div>
+
     <!-- 操作 -->
     <div style="display:flex;gap:var(--space-3);margin-top:var(--space-8);padding-top:var(--space-8);border-top:1px solid var(--border-light)">
       <button type="submit" class="btn btn--primary">保存设置</button>
@@ -107,4 +157,79 @@
     </div>
   </form>
 </div>
+
+{% block extra_js %}
+<script>
+/**
+ * 分类编辑器：管理作品分类的添加、删除和序列化
+ */
+function addCategory() {
+  var editor = document.getElementById('category-editor');
+  var row = document.createElement('div');
+  row.className = 'category-row';
+  row.style.cssText = 'display:flex;gap:var(--space-2);margin-bottom:var(--space-2);align-items:center;';
+  var count = editor.children.length;
+  row.innerHTML =
+    '<input type="text" class="cat-icon" value="📁" maxlength="2" style="width:48px;text-align:center;font-size:1.2em;padding:var(--space-1) var(--space-2);border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);" placeholder="图标">' +
+    '<input type="text" class="cat-key" value="cat' + count + '" style="flex:1;padding:var(--space-1) var(--space-2);border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);font-family:monospace;" placeholder="标识符 (key)" pattern="[a-z0-9_-]+">' +
+    '<input type="text" class="cat-name" value="" style="flex:2;padding:var(--space-1) var(--space-2);border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);" placeholder="显示名称">' +
+    '<button type="button" class="btn btn--danger btn--sm" onclick="removeCategory(this)">✕</button>';
+  editor.appendChild(row);
+}
+
+function removeCategory(btn) {
+  var editor = document.getElementById('category-editor');
+  if (editor.children.length <= 1) return;
+  btn.closest('.category-row').remove();
+  if (editor.children.length === 1) {
+    editor.querySelector('button').disabled = true;
+    editor.querySelector('button').style.opacity = '0.3';
+  }
+}
+
+/**
+ * 照片 URL 编辑器
+ */
+function addPhotoUrl() {
+  var editor = document.getElementById('photo-url-editor');
+  var row = document.createElement('div');
+  row.className = 'photo-url-row';
+  row.style.cssText = 'display:flex;gap:var(--space-2);margin-bottom:var(--space-2);align-items:center;';
+  row.innerHTML =
+    '<input type="url" class="photo-url-input" value="" style="flex:1;padding:var(--space-1) var(--space-2);border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);" placeholder="https://example.com/photo.jpg">' +
+    '<button type="button" class="btn btn--danger btn--sm" onclick="removePhotoUrl(this)">✕</button>';
+  editor.appendChild(row);
+}
+
+function removePhotoUrl(btn) {
+  btn.closest('.photo-url-row').remove();
+}
+
+// 表单提交前序列化分类和多照片数据
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelector('form').addEventListener('submit', function () {
+    // 序列化分类
+    var editor = document.getElementById('category-editor');
+    var categories = [];
+    editor.querySelectorAll('.category-row').forEach(function (row) {
+      var icon = row.querySelector('.cat-icon').value || '📁';
+      var key = row.querySelector('.cat-key').value.trim();
+      var name = row.querySelector('.cat-name').value.trim();
+      if (!key) return;
+      categories.push({ key: key, name: name || key, icon: icon });
+    });
+    document.getElementById('field-project-categories').value = JSON.stringify(categories);
+
+    // 序列化照片 URL
+    var photoEditor = document.getElementById('photo-url-editor');
+    var urls = [];
+    photoEditor.querySelectorAll('.photo-url-input').forEach(function (input) {
+      var url = input.value.trim();
+      if (url) urls.push(url);
+    });
+    document.getElementById('field-photo-urls').value = JSON.stringify(urls);
+  });
+});
+</script>
+{% endblock %}
 {% endblock %}

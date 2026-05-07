@@ -18,16 +18,10 @@
     全部
   </a>
   {% for cat in categories %}
-  <a href="/projects?category={{ cat }}"
-     class="cat-filter{% if current_category == cat %} cat-filter--active{% endif %}"
-     data-category="{{ cat }}">
-    {% if cat == 'web' %}Web
-    {% elif cat == 'tool' %}工具
-    {% elif cat == 'design' %}设计
-    {% elif cat == 'ai' %}AI / ML
-    {% elif cat == 'mobile' %}移动端
-    {% elif cat == 'game' %}游戏
-    {% else %}其他{% endif %}
+  <a href="/projects?category={{ cat.key }}"
+     class="cat-filter{% if current_category == cat.key %} cat-filter--active{% endif %}"
+     data-category="{{ cat.key }}">
+    {{ cat.name }}
   </a>
   {% endfor %}
 </div>
@@ -48,14 +42,8 @@
            style="width:100%;height:100%;object-fit:cover;">
       {% else %}
       <span class="project-card__img-icon">
-        {% if project.category == 'web' %}&#127760;
-        {% elif project.category == 'tool' %}&#128295;
-        {% elif project.category == 'design' %}&#127912;
-        {% elif project.category == 'ai' %}&#129302;
-        {% elif project.category == 'mobile' %}&#128241;
-        {% elif project.category == 'game' %}&#127918;
-        {% else %}&#128193;
-        {% endif %}
+        {% set cat_icon = category_dict.get(project.category, {}) %}
+        {{ cat_icon.get('icon', '📁') }}
       </span>
       {% endif %}
     </div>

@@ -1,5 +1,6 @@
 """作品集路由"""
 
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -11,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.config import SITE_TITLE, SITE_AUTHOR, SITE_DESCRIPTION
 from app.database import get_db
+from app.models.setting import SiteSetting
 from app.services import project_service
 from app.utils.csrf import get_cookie_token, validate_csrf
 from app.utils.locals import require_local
@@ -20,7 +22,24 @@ templates = Jinja2Templates(directory=str(templates_dir))
 
 router = APIRouter()
 
-CATEGORIES = ["web", "tool", "design", "ai", "other"]
+DEFAULT_CATEGORIES = [
+    {"key": "web", "name": "Web", "icon": "🌐"},
+    {"key": "tool", "name": "工具", "icon": "🔧"},
+    {"key": "design", "name": "设计", "icon": "🎨"},
+    {"key": "ai", "name": "AI / ML", "icon": "🧠"},
+    {"key": "other", "name": "其他", "icon": "📁"},
+]
+
+
+def _load_categories(db: Session) -> list[dict]:
+    """从数据库加载作品分类配置"""
+    row = db.query(SiteSetting).filter(SiteSetting.key == "project_categories").first()
+    if row and row.value:
+        try:
+            return json.loads(row.value)
+        except (json.JSONDecodeError, TypeError):
+            pass
+    return DEFAULT_CATEGORIES
 
 
 def _context(request: Request):
@@ -47,13 +66,16 @@ async def project_list(
 ):
     """作品集公开页面"""
     projects = project_service.get_projects(db, category=category)
+    categories = _load_categories(db)
+    category_dict = {c["key"]: c for c in categories}
 
     context = _context(request)
     context.update({
         "active_page": "projects",
         "projects": projects,
         "current_category": category or "",
-        "categories": CATEGORIES,
+        "categories": categories,
+        "category_dict": category_dict,
     })
     return templates.TemplateResponse(request, "projects/list.html", context)
 
@@ -69,12 +91,15 @@ async def manage_projects(
 ):
     """管理端作品列表（仅本地）"""
     projects = project_service.get_projects(db, published_only=False)
+    categories = _load_categories(db)
+    category_dict = {c["key"]: c for c in categories}
 
     context = _context(request)
     context.update({
         "active_page": "manage_projects",
         "projects": projects,
-        "categories": CATEGORIES,
+        "categories": categories,
+        "category_dict": category_dict,
     })
     return templates.TemplateResponse(request, "projects/manage.html", context)
 
@@ -90,12 +115,15 @@ async def manage_project_edit_page(
     project = project_service.get_project(db, project_id)
     if not project:
         raise HTTPException(status_code=404, detail="作品未找到")
+    categories = _load_categories(db)
+    category_dict = {c["key"]: c for c in categories}
 
     context = _context(request)
     context.update({
         "active_page": "manage_projects",
         "project": project,
-        "categories": CATEGORIES,
+        "categories": categories,
+        "category_dict": category_dict,
     })
     return templates.TemplateResponse(request, "projects/edit.html", context)
 

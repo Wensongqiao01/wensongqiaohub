@@ -1,5 +1,7 @@
 """数据库引擎和会话管理"""
 
+import json
+
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
@@ -33,6 +35,13 @@ def _seed_settings() -> None:
         "about_me": "这里是你的一段简短自我介绍。可以写写你的职业、爱好、或者任何你想分享的事情。",
         "contact_email": "",
         "contact_github": "",
+        "project_categories": json.dumps([
+            {"key": "web", "name": "Web", "icon": "🌐"},
+            {"key": "tool", "name": "工具", "icon": "🔧"},
+            {"key": "design", "name": "设计", "icon": "🎨"},
+            {"key": "ai", "name": "AI / ML", "icon": "🧠"},
+            {"key": "other", "name": "其他", "icon": "📁"},
+        ], ensure_ascii=False),
     }
     db = SessionLocal()
     try:

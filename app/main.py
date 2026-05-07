@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.config import SITE_TITLE
+from app.config import SITE_TITLE, DEBUG
 from app.database import init_db
 from app.utils.csrf import generate_token
 
@@ -21,6 +21,7 @@ class CSRFMiddleware(BaseHTTPMiddleware):
                 value=generate_token(),
                 httponly=False,
                 samesite="lax",
+                secure=not DEBUG,
             )
         return response
 

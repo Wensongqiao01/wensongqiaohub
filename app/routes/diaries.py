@@ -46,6 +46,7 @@ async def diary_list(
     total_pages = max(1, (total + DIARY_PAGE_SIZE - 1) // DIARY_PAGE_SIZE)
 
     context = _context(request)
+    context["is_local"] = False  # 公开路由始终显示公开视图
     context.update({
         "active_page": "diaries",
         "entries": entries,
@@ -214,6 +215,27 @@ async def manage_diary_update(
         tags=tags.strip() or None,
     )
     return RedirectResponse(url="/manage/diaries", status_code=303)
+
+
+@router.post("/manage/diaries/{diary_id}/toggle-publish")
+async def manage_diary_toggle_publish(
+    request: Request,
+    diary_id: int,
+    _=Depends(require_local),
+    _csrf=Depends(validate_csrf),
+    db: Session = Depends(get_db),
+):
+    """切换日记发布状态（仅本地）"""
+    from fastapi.responses import JSONResponse
+
+    diary = diary_service.get_diary_by_id(db, diary_id)
+    if not diary:
+        raise HTTPException(status_code=404, detail="日记未找到")
+
+    diary.is_public = not diary.is_public
+    db.commit()
+    db.refresh(diary)
+    return JSONResponse({"is_public": diary.is_public})
 
 
 @router.post("/manage/diaries/{diary_id}/delete")

@@ -28,9 +28,9 @@
       <div class="form-group">
         <label class="form-label" for="category">分类</label>
         <select id="category" name="category" class="form-input">
-          {% for cat in ['web', 'tool', 'design', 'ai', 'mobile', 'game', 'other'] %}
-          <option value="{{ cat }}" {% if project.category == cat %}selected{% endif %}>
-            {% if cat == 'web' %}Web{% elif cat == 'tool' %}工具{% elif cat == 'design' %}设计{% elif cat == 'ai' %}AI / ML{% elif cat == 'mobile' %}移动端{% elif cat == 'game' %}游戏{% else %}其他{% endif %}
+          {% for cat in categories %}
+          <option value="{{ cat.key }}" {% if project.category == cat.key %}selected{% endif %}>
+            {{ cat.name }}
           </option>
           {% endfor %}
         </select>
@@ -71,7 +71,6 @@
       </div>
       <div class="form-group" style="display: flex; align-items: center; padding-top: 1.5rem;">
         <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer;">
-          <input type="hidden" name="is_published" value="false">
           <input type="checkbox" name="is_published" value="true"
                  {% if project.is_published %}checked{% endif %}>
           <span class="form-label" style="margin-bottom: 0;">已发布</span>

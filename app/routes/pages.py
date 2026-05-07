@@ -52,6 +52,7 @@ def _common_context(request: Request):
 async def home(request: Request, db=Depends(get_db)):
     """首页"""
     from app.services.diary_service import get_public_diaries
+    from app.services.message_service import get_messages
     from app.services.quiz_service import get_all_questions, get_attempts
     from app.services.project_service import get_projects
 
@@ -59,25 +60,37 @@ async def home(request: Request, db=Depends(get_db)):
     questions = get_all_questions(db)
     attempts = get_attempts(db, limit=1)
     best_score = round((attempts[0].score / attempts[0].total) * 100) if attempts and attempts[0].total > 0 else None
-    diary_count = db.query(Diary).count()
+    diary_count = db.query(Diary).filter(Diary.is_public == True).count()
     project_count = len(get_projects(db, published_only=True))
+    recent_messages, _ = get_messages(db, page=1, page_size=10)
 
     # 加载可编辑的站点设置
     site_author = _load_setting(db, "site_author", SITE_AUTHOR)
     photo_url = _load_setting(db, "photo_url", "")
     about_me = _load_setting(db, "about_me", "")
 
+    # 加载多照片
+    photo_urls_raw = _load_setting(db, "photo_urls", "[]")
+    try:
+        photo_urls = json.loads(photo_urls_raw)
+    except (json.JSONDecodeError, TypeError):
+        photo_urls = []
+    if photo_url and photo_url not in photo_urls:
+        photo_urls.insert(0, photo_url)
+
     context = _common_context(request)
     context.update({
         "active_page": "home",
         "site_author": site_author,
         "photo_url": photo_url,
+        "photo_urls": photo_urls,
         "about_me": about_me,
         "latest_diaries": entries,
         "quiz_count": len(questions),
         "quiz_best": best_score,
         "diary_count": diary_count,
         "project_count": project_count,
+        "recent_messages": recent_messages,
     })
     return templates.TemplateResponse(request, "home.html", context)
 

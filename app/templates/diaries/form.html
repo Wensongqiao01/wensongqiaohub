@@ -89,9 +89,8 @@
     <!-- 公开开关 -->
     <div class="form-group">
       <label style="display: flex; align-items: center; gap: var(--space-3); cursor: pointer;">
-        <input type="hidden" name="is_public" value="false">
         <input type="checkbox" name="is_public" value="true"
-          {% if diary and diary.is_public %}checked{% endif %}
+          {% if not diary or diary.is_public %}checked{% endif %}
           style="width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer;">
         <span class="form-label" style="margin-bottom: 0; cursor: pointer;">公开发布</span>
       </label>

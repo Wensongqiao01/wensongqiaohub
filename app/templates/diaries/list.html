@@ -59,7 +59,14 @@
       {% endif %}
 
       {% if is_local %}
-      <form method="POST" action="/manage/diaries/{{ entry.id }}/delete" style="display: inline; margin-left: auto;" onsubmit="return confirm('确定删除此日记？')">
+      <form method="POST" action="/manage/diaries/{{ entry.id }}/toggle-publish"
+            style="display: inline;" class="toggle-diary-publish-form">
+        <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+        <button type="submit" class="btn btn--ghost btn--sm" style="color: var(--text-secondary);">
+          {{ '撤回' if entry.is_public else '发布' }}
+        </button>
+      </form>
+      <form method="POST" action="/manage/diaries/{{ entry.id }}/delete" style="display: inline;" onsubmit="return confirm('确定删除此日记？')">
         <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
         <button type="submit" class="btn btn--ghost btn--sm" style="color: var(--text-muted);">删除</button>
       </form>
@@ -92,4 +99,46 @@
 </div>
 {% endif %}
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.toggle-diary-publish-form').forEach(function (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var btn = this.querySelector('button[type="submit"]');
+      var tag = this.closest('.tl-item').querySelector('.tag');
+      var formData = new FormData(this);
+
+      fetch(this.action, {
+        method: 'POST',
+        body: formData,
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.is_public) {
+          btn.textContent = '撤回';
+          if (tag && tag.textContent.trim() === '🔒 私密') {
+            tag.remove();
+          }
+        } else {
+          btn.textContent = '发布';
+          if (!tag || tag.textContent.trim() !== '🔒 私密') {
+            var metaDiv = btn.closest('.tl-item__meta');
+            var privTag = document.createElement('span');
+            privTag.className = 'tag';
+            privTag.style.cssText = 'opacity: 0.6;';
+            privTag.textContent = '🔒 私密';
+            metaDiv.insertBefore(privTag, metaDiv.querySelector('form'));
+          }
+        }
+      })
+      .catch(function () {
+        alert('操作失败，请重试');
+      });
+    });
+  });
+});
+</script>
 {% endblock %}

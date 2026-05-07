@@ -22,20 +22,28 @@
   </div>
   <div class="hero-carousel">
     <div class="hero-carousel__track">
-      {% if photo_url %}
-      <div class="hero-carousel__slide"><img src="{{ photo_url }}" alt="{{ site_author }}"></div>
+      {% if photo_urls %}
+        {% for url in photo_urls %}
+        <div class="hero-carousel__slide"><img src="{{ url }}" alt="{{ site_author }}"></div>
+        {% endfor %}
       {% else %}
-      <div class="hero-carousel__slide">🌸</div>
+        <div class="hero-carousel__slide">🌸</div>
+        <div class="hero-carousel__slide">🌅</div>
+        <div class="hero-carousel__slide">🍁</div>
+        <div class="hero-carousel__slide">🌿</div>
       {% endif %}
-      <div class="hero-carousel__slide">🌅</div>
-      <div class="hero-carousel__slide">🍁</div>
-      <div class="hero-carousel__slide">🌿</div>
     </div>
     <div class="hero-carousel__dots">
-      <span class="hero-carousel__dot"></span>
-      <span class="hero-carousel__dot"></span>
-      <span class="hero-carousel__dot"></span>
-      <span class="hero-carousel__dot"></span>
+      {% if photo_urls %}
+        {% for _ in photo_urls %}
+        <span class="hero-carousel__dot"></span>
+        {% endfor %}
+      {% else %}
+        <span class="hero-carousel__dot"></span>
+        <span class="hero-carousel__dot"></span>
+        <span class="hero-carousel__dot"></span>
+        <span class="hero-carousel__dot"></span>
+      {% endif %}
     </div>
   </div>
 </div>
@@ -110,5 +118,57 @@
     {% endif %}
   </div>
 
+</div>
+
+<!-- ====== 首页留言板 ====== -->
+<div class="home-messages">
+  <div class="home-messages__inner">
+    <div class="section-title center">
+      <div class="section-title__sub">— Guestbook</div>
+      <h2 class="section-title__main">留言板</h2>
+    </div>
+
+    <!-- 表单 -->
+    <div class="home-messages__form">
+      <form method="POST" action="/messages">
+        <div class="form-group">
+          <input type="text" id="hm-name" name="nickname" class="form-input" placeholder="怎么称呼你" maxlength="50" required>
+        </div>
+        <div class="form-group">
+          <textarea id="hm-content" name="content" class="form-textarea" placeholder="写点什么..." maxlength="2000" required></textarea>
+        </div>
+        <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+        <div class="home-messages__form-actions">
+          <button type="submit" class="btn btn--primary">发送留言</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 留言列表 -->
+    <div class="home-messages__list">
+      {% for msg in recent_messages %}
+      <div class="hm-item">
+        <div class="hm-item__avatar">{{ msg.nickname[0] }}</div>
+        <div class="hm-item__body">
+          <div class="hm-item__header">
+            <span class="hm-item__name">{{ msg.nickname }}</span>
+            <span class="hm-item__time">{{ msg.created_at.strftime('%Y.%m.%d') }}</span>
+          </div>
+          <div class="hm-item__content">{{ msg.content }}</div>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-state__icon">💬</div>
+        <h3 class="empty-state__title">还没有留言</h3>
+        <p class="empty-state__text">成为第一个留言的人吧</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="home-messages__footer">
+      <a href="/messages" class="btn btn--ghost">查看全部 →</a>
+    </div>
+  </div>
 </div>
 {% endblock %}

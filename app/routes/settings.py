@@ -1,11 +1,12 @@
 """站点设置路由"""
 
+import json
 from datetime import datetime
+from pathlib import Path
 
 from fastapi import APIRouter, Request, Depends, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from pathlib import Path
 from sqlalchemy.orm import Session
 
 from app.config import SITE_TITLE
@@ -40,16 +41,34 @@ def _context(request: Request):
 @router.get("/manage/settings", response_class=HTMLResponse)
 async def manage_settings(
     request: Request,
+    saved: bool = False,
     _=Depends(require_local),
     db: Session = Depends(get_db),
 ):
     """管理：站点设置"""
     settings = _load_settings(db)
 
+    # 解析分类 JSON 供前端编辑器使用
+    project_categories_raw = settings.get("project_categories", "[]")
+    try:
+        project_categories_parsed = json.loads(project_categories_raw)
+    except (json.JSONDecodeError, TypeError):
+        project_categories_parsed = []
+
+    # 解析多照片 JSON
+    photo_urls_raw = settings.get("photo_urls", "[]")
+    try:
+        photo_urls = json.loads(photo_urls_raw)
+    except (json.JSONDecodeError, TypeError):
+        photo_urls = []
+
     context = _context(request)
     context.update({
         "active_page": "settings",
         "settings": settings,
+        "project_categories_parsed": project_categories_parsed,
+        "photo_urls": photo_urls,
+        "show_saved": saved,
     })
     return templates.TemplateResponse(request, "manage/settings.html", context)
 
@@ -62,6 +81,8 @@ async def manage_settings_save(
     about_me: str = Form(""),
     contact_email: str = Form(""),
     contact_github: str = Form(""),
+    project_categories: str = Form(""),
+    photo_urls: str = Form("[]"),
     _=Depends(require_local),
     _csrf=Depends(validate_csrf),
     db: Session = Depends(get_db),
@@ -76,6 +97,8 @@ async def manage_settings_save(
         "about_me": about_me.strip(),
         "contact_email": contact_email.strip(),
         "contact_github": contact_github.strip(),
+        "project_categories": project_categories,
+        "photo_urls": photo_urls,
     }
     for key, value in updates.items():
         setting = db.query(SiteSetting).filter(SiteSetting.key == key).first()
@@ -85,4 +108,4 @@ async def manage_settings_save(
             db.add(SiteSetting(key=key, value=value))
     db.commit()
 
-    return RedirectResponse(url="/manage/settings", status_code=303)
+    return RedirectResponse(url="/manage/settings?saved=1", status_code=303)

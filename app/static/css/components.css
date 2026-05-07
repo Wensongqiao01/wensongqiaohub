@@ -1405,19 +1405,31 @@
     flex-direction: column-reverse;
     text-align: center;
     padding-top: var(--space-10);
+    gap: var(--space-6);
   }
 
   .hero-carousel {
-    width: 200px;
-    height: 240px;
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  .home-hero__info {
+    width: 100%;
   }
 
   .home-hero__desc {
     margin: 0 auto var(--space-6);
+    max-width: 100%;
   }
 
   .home-hero__name {
     font-size: 2rem;
+  }
+
+  .home-hero__actions {
+    justify-content: center;
   }
 
   .bento-grid {
@@ -1474,8 +1486,9 @@
   }
 
   .hero-carousel {
-    width: 140px;
-    height: 180px;
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 4 / 3;
   }
 
   .home-hero__photo,
@@ -1483,4 +1496,111 @@
     width: 140px;
     height: 180px;
   }
+}
+
+/* ============================================================
+   首页留言板 .home-messages / .hm-item
+   ============================================================ */
+.home-messages {
+  padding: var(--space-16) 0;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
+}
+
+.home-messages__inner {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.home-messages__form {
+  background: var(--card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  margin-bottom: var(--space-10);
+}
+
+.home-messages__form .form-textarea {
+  min-height: 80px;
+}
+
+.home-messages__form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.home-messages__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-messages__footer {
+  text-align: center;
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-light);
+}
+
+/* 留言条目 */
+.hm-item {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.hm-item:last-child {
+  border-bottom: none;
+}
+
+.hm-item__avatar {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  background: var(--accent-subtler);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.hm-item__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.hm-item__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-1);
+}
+
+.hm-item__name {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.hm-item__time {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-left: auto;
+  font-family: var(--font-serif);
+  font-style: italic;
+}
+
+.hm-item__content {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* 首页留言板空状态 */
+.home-messages .empty-state {
+  padding: var(--space-8) var(--space-4);
 }
