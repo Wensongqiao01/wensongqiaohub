@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}站点设置 - {{ site_title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header__en">— Settings</div>
+  <h1 class="page-header__title">站点设置</h1>
+</div>
+
+<div class="manage-wrapper">
+  <form method="POST" action="/manage/settings">
+    <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+
+    <!-- 个人信息 -->
+    <div class="settings-section">
+      <div class="settings-section__title">个人信息</div>
+
+      <div class="form-group">
+        <label class="form-label" for="site_author">名称</label>
+        <input
+          type="text"
+          id="site_author"
+          name="site_author"
+          class="form-input"
+          value="{{ settings.get('site_author', '') }}"
+          required
+          maxlength="50"
+          placeholder="你的名字"
+        >
+        <p class="form-hint">显示在导航栏和首页的名字</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="photo_url">头像图片 URL</label>
+        <input
+          type="url"
+          id="photo_url"
+          name="photo_url"
+          class="form-input"
+          value="{{ settings.get('photo_url', '') }}"
+          placeholder="https://example.com/photo.jpg"
+        >
+        <p class="form-hint">可选，首页将显示此图片作为头像</p>
+      </div>
+      {% if settings.get('photo_url') %}
+      <div style="margin-bottom:var(--space-5)">
+        <img src="{{ settings['photo_url'] }}" alt="头像预览"
+          style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:2px solid var(--border-light)">
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- 站点内容 -->
+    <div class="settings-section">
+      <div class="settings-section__title">站点内容</div>
+
+      <div class="form-group">
+        <label class="form-label" for="about_me">关于我</label>
+        <textarea
+          id="about_me"
+          name="about_me"
+          class="form-textarea"
+          style="min-height:140px"
+          placeholder="一段简短的自我介绍..."
+        >{{ settings.get('about_me', '') }}</textarea>
+        <p class="form-hint">显示在关于页面以及首页摘要中</p>
+      </div>
+    </div>
+
+    <!-- 联系方式 -->
+    <div class="settings-section">
+      <div class="settings-section__title">联系方式</div>
+
+      <div class="form-group">
+        <label class="form-label" for="contact_email">联系邮箱</label>
+        <input
+          type="email"
+          id="contact_email"
+          name="contact_email"
+          class="form-input"
+          value="{{ settings.get('contact_email', '') }}"
+          placeholder="hello@example.com"
+        >
+        <p class="form-hint">显示在关于页面</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="contact_github">GitHub 用户名</label>
+        <input
+          type="text"
+          id="contact_github"
+          name="contact_github"
+          class="form-input"
+          value="{{ settings.get('contact_github', '') }}"
+          placeholder="your-github-username"
+          maxlength="100"
+        >
+        <p class="form-hint">显示在关于页面，会自动链接到 GitHub 个人页</p>
+      </div>
+    </div>
+
+    <!-- 操作 -->
+    <div style="display:flex;gap:var(--space-3);margin-top:var(--space-8);padding-top:var(--space-8);border-top:1px solid var(--border-light)">
+      <button type="submit" class="btn btn--primary">保存设置</button>
+      <a href="/" class="btn btn--outline">查看首页</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_local %}日记管理{% else %}日记{% endif %} - {{ site_title }}{% endblock %}
+
+{% block content %}
+
+{% if is_local %}
+<!-- 管理模式 -->
+<div class="page-header page-enter-delay">
+  <div class="page-header__en">— Management</div>
+  <h1 class="page-header__title">日记管理</h1>
+  <p class="page-header__desc">管理所有日记，包括公开与私密</p>
+  <div style="margin-top: var(--space-6);">
+    <a href="/manage/diaries/new" class="btn btn--primary">写新日记</a>
+  </div>
+</div>
+{% else %}
+<!-- 公开模式 -->
+<div class="page-header page-enter-delay">
+  <div class="page-header__en">— Writings</div>
+  <h1 class="page-header__title">日记</h1>
+  <p class="page-header__desc">记录日常所思所想，不定期更新</p>
+</div>
+{% endif %}
+
+{% if entries %}
+<div class="timeline">
+  {% for entry in entries %}
+  <article class="tl-item reveal">
+    <div class="tl-item__dot"></div>
+
+    <div class="tl-item__date">
+      {{ entry.created_at.strftime('%Y.%m.%d') }}
+    </div>
+
+    <h3 class="tl-item__title">
+      <a href="{% if is_local %}/manage/diaries/{{ entry.id }}/edit{% else %}/diaries/{{ entry.id }}{% endif %}">
+        {{ entry.title }}
+      </a>
+    </h3>
+
+    <p class="tl-item__preview">
+      {{ entry.content[:200] }}{% if entry.content|length > 200 %}...{% endif %}
+    </p>
+
+    <div class="tl-item__meta">
+      {% if entry.mood %}
+      <span class="tag tag--accent">{{ entry.mood }}</span>
+      {% endif %}
+
+      {% if entry.tags %}
+      {% for tag in entry.tags.split(',') %}
+      <span class="tag">{{ tag.strip() }}</span>
+      {% endfor %}
+      {% endif %}
+
+      {% if not entry.is_public %}
+      <span class="tag" style="opacity: 0.6;">🔒 私密</span>
+      {% endif %}
+
+      {% if is_local %}
+      <form method="POST" action="/manage/diaries/{{ entry.id }}/delete" style="display: inline; margin-left: auto;" onsubmit="return confirm('确定删除此日记？')">
+        <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+        <button type="submit" class="btn btn--ghost btn--sm" style="color: var(--text-muted);">删除</button>
+      </form>
+      {% endif %}
+    </div>
+  </article>
+  {% endfor %}
+
+  <!-- 分页 -->
+  {% if total_pages is defined and total_pages > 1 and not is_local %}
+  <div class="pagination">
+    <a href="/diaries?page={{ page - 1 }}" class="page-link {% if page <= 1 %}page-link--disabled{% endif %}">‹</a>
+    {% for p in range(1, total_pages + 1) %}
+    <a href="/diaries?page={{ p }}" class="page-link {% if p == page %}page-link--active{% endif %}">{{ p }}</a>
+    {% endfor %}
+    <a href="/diaries?page={{ page + 1 }}" class="page-link {% if page >= total_pages %}page-link--disabled{% endif %}">›</a>
+  </div>
+  {% endif %}
+</div>
+
+{% else %}
+<div class="page-404" style="padding: var(--space-16) 0;">
+  <div class="page-404__num">.</div>
+  <p class="page-404__text">
+    {% if is_local %}还没有日记，开始写第一篇吧{% else %}还没有公开的日记{% endif %}
+  </p>
+  {% if is_local %}
+  <a href="/manage/diaries/new" class="btn btn--primary">写第一篇日记</a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

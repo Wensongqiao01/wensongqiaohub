@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}留言板 - {{ site_title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header__en">— Guestbook</div>
+  <h1 class="page-header__title">留言板</h1>
+  <p class="page-header__desc">留下你想说的话</p>
+</div>
+
+<div class="messages-wrapper">
+  <!-- 留言表单 -->
+  <div class="msg-form">
+    <form method="POST" action="/messages">
+      <div class="form-group">
+        <label class="form-label" for="msg-name">昵称</label>
+        <input type="text" id="msg-name" name="nickname" class="form-input" placeholder="怎么称呼你" maxlength="50" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="msg-content">内容</label>
+        <textarea id="msg-content" name="content" class="form-textarea" placeholder="写点什么..." maxlength="2000" required></textarea>
+        <div class="form-hint">最多 2000 字</div>
+      </div>
+      <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+      <button type="submit" class="btn btn--primary">发送留言</button>
+    </form>
+  </div>
+
+  <!-- 留言列表 -->
+  <div class="msg-list">
+    {% for msg in messages %}
+    <div class="msg-item{% if msg.is_pinned %} msg-item--pinned{% endif %}">
+      {% if msg.is_pinned %}
+      <div class="msg-item__pin">📌 置顶</div>
+      {% endif %}
+      <div class="msg-item__header">
+        <div class="msg-item__avatar">{{ msg.nickname[0] }}</div>
+        <span class="msg-item__name">{{ msg.nickname }}</span>
+        <span class="msg-item__time">{{ msg.created_at.strftime('%Y.%m.%d') }}</span>
+      </div>
+      <div class="msg-item__content">{{ msg.content }}</div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state__icon">💬</div>
+      <h2 class="empty-state__title">还没有留言</h2>
+      <p class="empty-state__text">成为第一个留言的人吧</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- 分页 -->
+  {% if total_pages > 1 %}
+  <div class="pagination">
+    {% if page > 1 %}
+    <a href="/messages?page={{ page - 1 }}" class="page-link">‹</a>
+    {% else %}
+    <span class="page-link page-link--disabled">‹</span>
+    {% endif %}
+    {% for p in range(1, total_pages + 1) %}
+    <a href="/messages?page={{ p }}" class="page-link{% if p == page %} page-link--active{% endif %}">{{ p }}</a>
+    {% endfor %}
+    {% if page < total_pages %}
+    <a href="/messages?page={{ page + 1 }}" class="page-link">›</a>
+    {% else %}
+    <span class="page-link page-link--disabled">›</span>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

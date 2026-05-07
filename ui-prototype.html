@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日式美学 · 个人主页 UI 原型</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ===== Design Tokens ===== */
+  :root {
+    --bg: #faf6f0;
+    --bg-alt: #f5f0e8;
+    --card: #ffffff;
+    --text: #2d2d2d;
+    --text-secondary: #6b6b6b;
+    --text-muted: #a09888;
+    --accent: #c9a96e;
+    --accent-hover: #b8944a;
+    --accent-subtle: rgba(201,169,110,0.12);
+    --accent-subtler: rgba(201,169,110,0.06);
+    --sage: #8b7355;
+    --sage-light: rgba(139,115,85,0.08);
+    --border: #e0d8cc;
+    --border-light: #ece6dc;
+    --shadow: rgba(45,45,45,0.04);
+    --shadow-hover: rgba(45,45,45,0.08);
+    --radius-sm: 3px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --max-width: 1120px;
+    --nav-height: 60px;
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-20: 5rem;
+    --font-sans: 'Noto Sans SC','Hiragino Sans','PingFang SC',system-ui,sans-serif;
+    --font-serif: 'Playfair Display','Noto Sans SC',Georgia,serif;
+    --transition: 250ms cubic-bezier(0.16,1,0.3,1);
+  }
+
+  /* ===== Reset ===== */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+  body{font-family:var(--font-sans);font-size:1rem;line-height:1.8;color:var(--text);background:var(--bg);min-height:100vh}
+  img{max-width:100%;height:auto;display:block}
+  a{color:var(--text);text-decoration:none;transition:color var(--transition)}
+  a:hover{color:var(--accent)}
+  ::selection{background:var(--accent-subtle);color:var(--text)}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:var(--radius-sm)}
+
+  .container{max-width:var(--max-width);margin:0 auto;padding:0 var(--space-6)}
+
+  /* ===== Navigation ===== */
+  .nav{position:sticky;top:0;z-index:100;height:var(--nav-height);background:#fff;border-bottom:1px solid var(--border-light)}
+  .nav__inner{display:flex;align-items:center;justify-content:space-between;height:100%;max-width:var(--max-width);margin:0 auto;padding:0 var(--space-6)}
+  .nav__logo{font-size:1.1rem;font-weight:500;letter-spacing:0.06em;color:var(--text)}
+  .nav__logo:hover{color:var(--accent)}
+  .nav__links{display:flex;align-items:center;gap:2px;list-style:none}
+  .nav__link{display:inline-flex;align-items:center;padding:var(--space-2) var(--space-4);color:var(--text-secondary);font-size:0.875rem;font-weight:400;border-radius:var(--radius-md);transition:all var(--transition);position:relative;letter-spacing:0.03em}
+  .nav__link:hover{color:var(--text);background:var(--accent-subtler)}
+  .nav__link--active{color:var(--text)}
+  .nav__link--active::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:16px;height:1px;background:var(--accent)}
+  .nav__hamburger{display:none;background:none;border:none;cursor:pointer;padding:var(--space-2);color:var(--text);opacity:0.6}
+
+  @media(max-width:768px){
+    .nav__links{display:none;position:absolute;top:var(--nav-height);left:0;right:0;flex-direction:column;background:#fff;padding:var(--space-4);gap:var(--space-1);border-bottom:1px solid var(--border)}
+    .nav__links--open{display:flex}
+    .nav__hamburger{display:block}
+  }
+
+  /* ===== Footer ===== */
+  .footer{border-top:1px solid var(--border-light);padding:var(--space-12) 0;margin-top:var(--space-20);text-align:center}
+  .footer__inner{max-width:var(--max-width);margin:0 auto;padding:0 var(--space-6)}
+  .footer__divider{width:40px;height:1px;background:var(--accent);margin:0 auto var(--space-6)}
+  .footer__text{font-size:0.8rem;color:var(--text-muted);letter-spacing:0.05em}
+
+  /* ===== Section Divider ===== */
+  .section-title{margin-bottom:var(--space-8);position:relative;padding-bottom:var(--space-4)}
+  .section-title::after{content:'';position:absolute;bottom:0;left:0;width:32px;height:2px;background:var(--accent)}
+  .section-title.center{text-align:center}
+  .section-title.center::after{left:50%;transform:translateX(-50%)}
+  .section-title__sub{font-size:0.75rem;color:var(--text-muted);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:var(--space-2);font-family:var(--font-serif)}
+  .section-title__main{font-size:1.5rem;font-weight:700;letter-spacing:0.04em}
+
+  /* ===== Page Enter Animation ===== */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .page-enter{animation:fadeUp 600ms ease-out}
+  .page-enter-delay{animation:fadeUp 600ms ease-out 200ms both}
+  .page-enter-delay2{animation:fadeUp 600ms ease-out 400ms both}
+
+  /* ===== Page Header ===== */
+  .page-header{padding:var(--space-16) 0 var(--space-12);text-align:center}
+  .page-header__en{font-family:var(--font-serif);font-size:0.85rem;color:var(--text-muted);font-style:italic;letter-spacing:0.1em;margin-bottom:var(--space-3)}
+  .page-header__title{font-size:2rem;font-weight:700;letter-spacing:0.08em;margin-bottom:var(--space-4)}
+  .page-header__desc{color:var(--text-secondary);max-width:480px;margin:0 auto;font-size:0.95rem}
+
+  /* ===== Card System ===== */
+  .card{background:var(--card);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:var(--space-6);transition:border-color var(--transition),box-shadow var(--transition)}
+  .card:hover{border-color:var(--border);box-shadow:0 4px 20px var(--shadow-hover)}
+  .card__title{font-size:1.1rem;font-weight:500;margin-bottom:var(--space-3);letter-spacing:0.03em}
+  .card__text{color:var(--text-secondary);font-size:0.9rem;line-height:1.8}
+  .card__meta{display:flex;align-items:center;gap:var(--space-3);color:var(--text-muted);font-size:0.8rem;margin-top:var(--space-3)}
+
+  /* ===== Button ===== */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);font-family:var(--font-sans);font-size:0.85rem;font-weight:400;padding:0.5rem 1.25rem;border-radius:var(--radius-sm);border:1px solid transparent;cursor:pointer;transition:all var(--transition);text-decoration:none;line-height:1.6;letter-spacing:0.04em}
+  .btn--primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn--primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);color:#fff}
+  .btn--outline{background:transparent;color:var(--text-secondary);border-color:var(--border)}
+  .btn--outline:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-subtle)}
+  .btn--ghost{background:transparent;color:var(--text-muted);border-color:transparent;padding:0.375rem 0.75rem}
+  .btn--ghost:hover{color:var(--accent);background:var(--accent-subtle)}
+  .btn--sm{padding:0.3rem 0.75rem;font-size:0.8rem}
+
+  /* ===== Tags/Badges ===== */
+  .tag{display:inline-flex;align-items:center;padding:2px 10px;font-size:0.75rem;border-radius:var(--radius-sm);background:var(--accent-subtler);color:var(--text-secondary);letter-spacing:0.02em}
+  .tag--accent{background:var(--accent-subtle);color:var(--accent)}
+
+  /* ===== Form ===== */
+  .form-group{margin-bottom:var(--space-5)}
+  .form-label{display:block;font-size:0.85rem;font-weight:500;margin-bottom:var(--space-2);color:var(--text)}
+  .form-input,.form-textarea{width:100%;font-family:var(--font-sans);font-size:0.95rem;padding:var(--space-3) var(--space-4);border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);color:var(--text);transition:border-color var(--transition)}
+  .form-input:focus,.form-textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-subtle)}
+  .form-textarea{resize:vertical;min-height:120px}
+  .form-hint{font-size:0.75rem;color:var(--text-muted);margin-top:var(--space-1)}
+
+  /* ===== Scroll Reveal ===== */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity 600ms ease-out,transform 600ms ease-out}
+  .reveal.visible{opacity:1;transform:translateY(0)}
+
+  /* ================================================================ */
+  /*  HOME: Hero + Photo Carousel                                     */
+  /* ================================================================ */
+  .home-hero{padding:var(--space-12) 0 var(--space-8);display:flex;align-items:center;gap:var(--space-12);max-width:var(--max-width);margin:0 auto;padding-left:var(--space-6);padding-right:var(--space-6)}
+  .home-hero__info{flex:1}
+  .home-hero__en{font-family:var(--font-serif);font-size:0.85rem;color:var(--text-muted);font-style:italic;letter-spacing:0.12em;margin-bottom:var(--space-4)}
+  .home-hero__name{font-size:3rem;font-weight:300;letter-spacing:0.1em;line-height:1.2;margin-bottom:var(--space-4)}
+  .home-hero__name strong{font-weight:700}
+  .home-hero__desc{color:var(--text-secondary);font-size:0.95rem;max-width:400px;line-height:1.9;margin-bottom:var(--space-8)}
+
+  /* Photo Carousel */
+  .hero-carousel{width:280px;height:320px;flex-shrink:0;position:relative;overflow:hidden;border-radius:4px}
+  .hero-carousel__track{display:flex;width:100%;height:100%;animation:carouselScroll 18s ease-in-out infinite}
+  .hero-carousel:hover .hero-carousel__track{animation-play-state:paused}
+  .hero-carousel__slide{min-width:100%;height:100%;object-fit:cover;background:var(--accent-subtler);display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--text-muted);flex-shrink:0}
+  .hero-carousel__slide img{width:100%;height:100%;object-fit:cover}
+  @keyframes carouselScroll{
+    0%{transform:translateX(0)}
+    20%{transform:translateX(0)}
+    25%{transform:translateX(-100%)}
+    45%{transform:translateX(-100%)}
+    50%{transform:translateX(-200%)}
+    70%{transform:translateX(-200%)}
+    75%{transform:translateX(-300%)}
+    95%{transform:translateX(-300%)}
+    100%{transform:translateX(0)}
+  }
+  .hero-carousel__dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
+  .hero-carousel__dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.4);transition:background var(--transition)}
+  .hero-carousel__dot--active{background:rgba(255,255,255,0.9)}
+  /* 用 animation-delay 模拟 dot 同步 */
+  .hero-carousel__dot:nth-child(1){animation:dotActive 18s ease-in-out infinite}
+  .hero-carousel__dot:nth-child(2){animation:dotActive 18s ease-in-out infinite;animation-delay:-13.5s}
+  .hero-carousel__dot:nth-child(3){animation:dotActive 18s ease-in-out infinite;animation-delay:-9s}
+  .hero-carousel__dot:nth-child(4){animation:dotActive 18s ease-in-out infinite;animation-delay:-4.5s}
+  @keyframes dotActive{
+    0%,17%,100%{background:rgba(255,255,255,0.4)}
+    3%,15%{background:rgba(255,255,255,0.9)}
+  }
+
+  .bento-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-5);padding:var(--space-8) 0 var(--space-16);max-width:var(--max-width);margin:0 auto;padding-left:var(--space-6);padding-right:var(--space-6)}
+
+  .bento-card{background:var(--card);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:var(--space-6);transition:border-color var(--transition);position:relative}
+  .bento-card:hover{border-color:var(--accent)}
+  .bento-card__label{font-size:0.65rem;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:var(--space-4);font-family:var(--font-serif)}
+
+  .stat-item{display:flex;flex-direction:column;gap:var(--space-1)}
+  .stat-item__value{font-size:2rem;font-weight:300;letter-spacing:0.02em;line-height:1}
+  .stat-item__label{font-size:0.75rem;color:var(--text-muted);letter-spacing:0.05em}
+
+  .diary-mini{padding:var(--space-3) 0;border-bottom:1px solid var(--border-light)}
+  .diary-mini:last-child{border-bottom:none;padding-bottom:0}
+  .diary-mini:first-child{padding-top:0}
+  .diary-mini__title{font-size:0.9rem;font-weight:500;margin-bottom:2px}
+  .diary-mini__date{font-size:0.7rem;color:var(--text-muted);letter-spacing:0.03em}
+
+  .bento-card--photo{grid-column:span 1;grid-row:span 2;display:flex;flex-direction:column;gap:var(--space-4)}
+  .bento-card--wide{grid-column:span 2}
+  .bento-card--tall{grid-row:span 2}
+
+  /* ================================================================ */
+  /*  PROJECTS                                                        */
+  /* ================================================================ */
+  .projects-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-5);padding:var(--space-8) 0 var(--space-16);max-width:var(--max-width);margin:0 auto;padding-left:var(--space-6);padding-right:var(--space-6)}
+
+  .project-card{border:1px solid var(--border-light);border-radius:var(--radius-md);overflow:hidden;transition:border-color var(--transition);background:var(--card)}
+  .project-card:hover{border-color:var(--accent)}
+  .project-card__img{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--accent-subtler)}
+  .project-card__img-placeholder{width:100%;aspect-ratio:16/10;background:var(--accent-subtler);display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--text-muted)}
+  .project-card__body{padding:var(--space-5)}
+  .project-card__title{font-size:1rem;font-weight:500;margin-bottom:var(--space-2);letter-spacing:0.03em}
+  .project-card__desc{font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:var(--space-3);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .project-card__tags{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-bottom:var(--space-4)}
+  .project-card__links{display:flex;gap:var(--space-3)}
+  .project-card__links a{font-size:0.8rem;color:var(--text-muted);display:inline-flex;align-items:center;gap:var(--space-1);transition:color var(--transition)}
+  .project-card__links a:hover{color:var(--accent)}
+
+  .cat-filters{display:flex;gap:var(--space-2);margin-bottom:var(--space-8);flex-wrap:wrap;justify-content:center}
+  .cat-filter{padding:0.35rem 1rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.8rem;color:var(--text-secondary);cursor:pointer;transition:all var(--transition);background:transparent;font-family:var(--font-sans)}
+  .cat-filter:hover{border-color:var(--accent);color:var(--accent)}
+  .cat-filter--active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  /* ================================================================ */
+  /*  DIARY LIST - Timeline                                           */
+  /* ================================================================ */
+  .timeline{max-width:680px;margin:0 auto;padding:var(--space-8) 0 var(--space-16);position:relative}
+  .timeline::before{content:'';position:absolute;left:12px;top:0;bottom:0;width:1px;background:var(--border)}
+
+  .tl-item{position:relative;padding-left:44px;padding-bottom:var(--space-10)}
+  .tl-item:last-child{padding-bottom:0}
+  .tl-item__dot{position:absolute;left:4px;top:6px;width:16px;height:16px;border-radius:50%;background:var(--card);border:2px solid var(--accent)}
+  .tl-item__date{font-size:0.7rem;color:var(--text-muted);letter-spacing:0.05em;margin-bottom:var(--space-1);font-family:var(--font-serif);font-style:italic}
+  .tl-item__title{font-size:1.1rem;font-weight:500;letter-spacing:0.03em}
+  .tl-item__title a{color:var(--text)}
+  .tl-item__title a:hover{color:var(--accent)}
+  .tl-item__preview{font-size:0.85rem;color:var(--text-secondary);line-height:1.8;margin-top:var(--space-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .tl-item__meta{display:flex;align-items:center;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-3)}
+
+  /* ================================================================ */
+  /*  DIARY DETAIL                                                    */
+  /* ================================================================ */
+  .article-wrapper{max-width:680px;margin:var(--space-8) auto var(--space-16);padding:0 var(--space-6)}
+
+  .article-header{margin-bottom:var(--space-10);padding-bottom:var(--space-8);border-bottom:1px solid var(--border-light)}
+  .article-header__en{font-family:var(--font-serif);font-size:0.8rem;color:var(--text-muted);font-style:italic;letter-spacing:0.1em;margin-bottom:var(--space-3)}
+  .article-header__title{font-size:2rem;font-weight:700;letter-spacing:0.04em;line-height:1.3;margin-bottom:var(--space-4)}
+  .article-header__meta{display:flex;align-items:center;gap:var(--space-4);font-size:0.8rem;color:var(--text-muted)}
+  .article-header__meta .sep{color:var(--border)}
+
+  .article-body{font-size:0.95rem;line-height:2;color:var(--text)}
+  .article-body h2{font-size:1.3rem;font-weight:600;margin-top:var(--space-10);margin-bottom:var(--space-4);letter-spacing:0.03em;padding-bottom:var(--space-2);border-bottom:1px solid var(--border-light)}
+  .article-body h3{font-size:1.1rem;font-weight:500;margin-top:var(--space-8);margin-bottom:var(--space-3)}
+  .article-body p{margin-bottom:var(--space-5)}
+  .article-body blockquote{border-left:2px solid var(--accent);padding-left:var(--space-4);color:var(--text-secondary);margin-bottom:var(--space-5);font-style:italic}
+  .article-body code{font-family:'JetBrains Mono',monospace;font-size:0.85em;background:var(--accent-subtler);padding:0.15em 0.4em;border-radius:var(--radius-sm)}
+  .article-body pre{background:#2d2d2d;color:#e0d8cc;padding:var(--space-5);border-radius:var(--radius-md);overflow-x:auto;margin-bottom:var(--space-5);font-size:0.85rem}
+  .article-body pre code{background:none;padding:0;color:inherit}
+  .article-body img{border-radius:var(--radius-md);margin:var(--space-6) auto;border:1px solid var(--border-light)}
+  .article-body ul,.article-body ol{margin-bottom:var(--space-5);padding-left:var(--space-6)}
+  .article-body li{margin-bottom:var(--space-2)}
+
+  .article-nav{display:flex;justify-content:space-between;margin-top:var(--space-10);padding-top:var(--space-8);border-top:1px solid var(--border-light);gap:var(--space-6)}
+  .article-nav a{font-size:0.9rem;color:var(--text-secondary);transition:color var(--transition)}
+  .article-nav a:hover{color:var(--accent)}
+  .article-nav--next{text-align:right}
+  .article-nav__label{font-size:0.7rem;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase}
+
+  /* ================================================================ */
+  /*  MESSAGES                                                        */
+  /* ================================================================ */
+  .messages-wrapper{max-width:680px;margin:0 auto;padding:var(--space-8) 0 var(--space-16)}
+
+  .msg-form{background:var(--card);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:var(--space-6);margin-bottom:var(--space-10)}
+
+  .msg-list{display:flex;flex-direction:column;gap:var(--space-4)}
+  .msg-item{background:var(--card);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:var(--space-5);transition:border-color var(--transition)}
+  .msg-item:hover{border-color:var(--border)}
+  .msg-item--pinned{border-color:var(--accent)}
+  .msg-item--pinned .msg-item__pin{display:inline-flex;font-size:0.7rem;color:var(--accent);letter-spacing:0.08em;margin-bottom:var(--space-2);align-items:center;gap:4px}
+
+  .msg-item__header{display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-3)}
+  .msg-item__avatar{width:36px;height:36px;border-radius:50%;background:var(--accent-subtler);display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:var(--accent);font-weight:500;flex-shrink:0}
+  .msg-item__name{font-size:0.9rem;font-weight:500}
+  .msg-item__time{font-size:0.7rem;color:var(--text-muted);margin-left:auto;font-family:var(--font-serif);font-style:italic}
+  .msg-item__content{font-size:0.9rem;line-height:1.8;color:var(--text-secondary)}
+
+  /* ================================================================ */
+  /*  QUIZ                                                            */
+  /* ================================================================ */
+  .quiz-wrapper{max-width:600px;margin:0 auto;padding:var(--space-8) 0 var(--space-16)}
+  .quiz-welcome{text-align:center;padding:var(--space-12) 0}
+  .quiz-welcome__en{font-family:var(--font-serif);font-size:0.85rem;color:var(--text-muted);font-style:italic;letter-spacing:0.1em;margin-bottom:var(--space-4)}
+  .quiz-welcome__title{font-size:1.8rem;font-weight:700;margin-bottom:var(--space-4);letter-spacing:0.04em}
+  .quiz-welcome__desc{color:var(--text-secondary);max-width:400px;margin:0 auto var(--space-8);font-size:0.9rem}
+
+  .q-progress{display:flex;gap:var(--space-2);margin-bottom:var(--space-8);justify-content:center}
+  .q-progress__dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background var(--transition)}
+  .q-progress__dot--active{background:var(--accent)}
+  .q-progress__dot--done{background:var(--text-muted)}
+
+  .q-text{font-size:1.2rem;font-weight:500;line-height:1.6;margin-bottom:var(--space-6);letter-spacing:0.02em}
+  .q-options{display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-8)}
+  .q-option{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all var(--transition);font-family:var(--font-sans);font-size:0.95rem;text-align:left;background:var(--card);width:100%}
+  .q-option:hover{border-color:var(--accent)}
+  .q-option--selected{border-color:var(--accent);background:var(--accent-subtle)}
+  .q-option__letter{width:28px;height:28px;border-radius:50%;background:var(--accent-subtler);display:flex;align-items:center;justify-content:center;font-size:0.75rem;flex-shrink:0;transition:all var(--transition)}
+  .q-option--selected .q-option__letter{background:var(--accent);color:#fff}
+
+  .q-result{text-align:center;padding:var(--space-8) 0}
+  .q-score{font-size:4rem;font-weight:300;letter-spacing:-0.02em;color:var(--accent);font-family:var(--font-serif);font-style:italic}
+  .q-score__label{font-size:0.9rem;color:var(--text-muted);margin-top:var(--space-2)}
+  .q-review{margin-top:var(--space-8);text-align:left}
+  .q-review__item{padding:var(--space-4);border:1px solid var(--border-light);border-radius:var(--radius-sm);margin-bottom:var(--space-3)}
+
+  /* ================================================================ */
+  /*  ABOUT                                                           */
+  /* ================================================================ */
+  .about-wrapper{max-width:600px;margin:0 auto;padding:var(--space-8) 0 var(--space-16)}
+  .about-content{font-size:0.95rem;line-height:2;color:var(--text-secondary)}
+
+  /* ================================================================ */
+  /*  404                                                             */
+  /* ================================================================ */
+  .page-404{text-align:center;padding:var(--space-20) 0}
+  .page-404__num{font-size:6rem;font-weight:300;color:var(--accent);font-family:var(--font-serif);font-style:italic;line-height:1;margin-bottom:var(--space-4)}
+  .page-404__text{font-size:1rem;color:var(--text-muted);margin-bottom:var(--space-8)}
+
+  /* ================================================================ */
+  /*  PAGINATION                                                      */
+  /* ================================================================ */
+  .pagination{display:flex;align-items:center;justify-content:center;gap:var(--space-2);margin-top:var(--space-10)}
+  .page-link{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.85rem;color:var(--text-secondary);transition:all var(--transition)}
+  .page-link:hover{border-color:var(--accent);color:var(--accent)}
+  .page-link--active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .page-link--disabled{opacity:0.3;pointer-events:none}
+
+  /* ================================================================ */
+  /*  RESPONSIVE                                                      */
+  /* ================================================================ */
+  @media(max-width:1024px){
+    .bento-grid{grid-template-columns:repeat(3,1fr)}
+    .projects-grid{grid-template-columns:repeat(2,1fr)}
+  }
+  @media(max-width:768px){
+    .home-hero{flex-direction:column-reverse;text-align:center;padding-top:var(--space-10)}
+    .hero-carousel{width:200px;height:240px}
+    .home-hero__desc{margin:0 auto var(--space-6)}
+    .home-hero__name{font-size:2rem}
+    .bento-grid{grid-template-columns:1fr;max-width:480px}
+    .bento-card--photo,.bento-card--wide,.bento-card--tall{grid-column:1!important;grid-row:auto!important}
+    .projects-grid{grid-template-columns:1fr;max-width:480px}
+    .article-header__title{font-size:1.5rem}
+    .page-header__title{font-size:1.5rem}
+  }
+  @media(max-width:480px){
+    .container,.home-hero,.bento-grid,.projects-grid,.article-wrapper,.messages-wrapper,.quiz-wrapper,.about-wrapper{padding-left:var(--space-4);padding-right:var(--space-4)}
+    .home-hero__photo,.home-hero__photo-placeholder,.hero-carousel{width:140px;height:180px}
+  }
+
+  /* ================================================================ */
+  /*  SECTION SEPARATORS (用于原型页面)                               */
+  /* ================================================================ */
+  .prototype-section{border-top:2px dashed var(--border)}
+  .prototype-section:first-child{border-top:none}
+  .prototype-tag{font-size:0.7rem;color:var(--text-muted);letter-spacing:0.1em;padding:var(--space-2) var(--space-4);background:var(--accent-subtler);border-radius:var(--radius-sm);display:inline-block;margin-bottom:var(--space-3)}
+</style>
+</head>
+<body>
+
+<!-- ============================================================== -->
+<!-- 导航栏 -->
+<!-- ============================================================== -->
+<nav class="nav">
+  <div class="nav__inner">
+    <a href="#" class="nav__logo">渡</a>
+    <button class="nav__hamburger" aria-label="打开菜单">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+    <ul class="nav__links">
+      <li><a href="#home" class="nav__link nav__link--active">首页</a></li>
+      <li><a href="#diaries" class="nav__link">日记</a></li>
+      <li><a href="#projects" class="nav__link">作品</a></li>
+      <li><a href="#messages" class="nav__link">留言</a></li>
+      <li><a href="#quiz" class="nav__link">测验</a></li>
+      <li><a href="#about" class="nav__link">关于</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="page-enter">
+
+<!-- ============================================================== -->
+<!-- 首页 Hero + Bento Grid                                         -->
+<!-- ============================================================== -->
+<section id="home" class="prototype-section">
+  <div style="text-align:center;padding:var(--space-4) 0 0"><span class="prototype-tag">首页 /</span></div>
+
+  <div class="home-hero">
+    <div class="home-hero__info">
+      <div class="home-hero__en">— Welcome</div>
+      <h1 class="home-hero__name">渡辺 <strong>太郎</strong></h1>
+      <p class="home-hero__desc">全栈开发者，喜欢用代码创造美好的数字体验。目前在探索 AI 与创意工具的结合。</p>
+      <div style="display:flex;gap:var(--space-3)">
+        <a href="#projects" class="btn btn--primary">作品集</a>
+        <a href="#about" class="btn btn--outline">关于我</a>
+      </div>
+    </div>
+    <div class="hero-carousel">
+      <div class="hero-carousel__track">
+        <div class="hero-carousel__slide">🌅</div>
+        <div class="hero-carousel__slide">🌸</div>
+        <div class="hero-carousel__slide">🍁</div>
+        <div class="hero-carousel__slide">🌿</div>
+      </div>
+      <div class="hero-carousel__dots">
+        <span class="hero-carousel__dot"></span>
+        <span class="hero-carousel__dot"></span>
+        <span class="hero-carousel__dot"></span>
+        <span class="hero-carousel__dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bento-grid">
+    <!-- 关于卡片 -->
+    <div class="bento-card bento-card--wide page-enter-delay">
+      <div class="bento-card__label">About</div>
+      <p style="font-size:0.9rem;color:var(--text-secondary);line-height:1.9">毕业于东京某大学计算机科学系，热爱开源与分享。目前独立开发中，擅长 Python、TypeScript 和系统设计。</p>
+      <div style="margin-top:var(--space-4)">
+        <a href="#about" class="btn btn--ghost btn--sm">了解更多 →</a>
+      </div>
+    </div>
+
+    <!-- 数据 -->
+    <div class="bento-card page-enter-delay">
+      <div class="bento-card__label">Stats</div>
+      <div style="display:flex;flex-direction:column;gap:var(--space-4)">
+        <div class="stat-item">
+          <span class="stat-item__value">24</span>
+          <span class="stat-item__label">公开日记</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-item__value">12</span>
+          <span class="stat-item__label">项目作品</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-item__value">89%</span>
+          <span class="stat-item__label">测验最高分</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 最新日记 -->
+    <div class="bento-card bento-card--wide page-enter-delay2">
+      <div class="bento-card__label">Recent Writings</div>
+      <div class="diary-mini">
+        <div class="diary-mini__title"><a href="#diary-detail">秋日京都漫步</a></div>
+        <div class="diary-mini__date">2025.11.15</div>
+      </div>
+      <div class="diary-mini">
+        <div class="diary-mini__title"><a href="#diary-detail">关于 Minimal API 设计的一些思考</a></div>
+        <div class="diary-mini__date">2025.11.08</div>
+      </div>
+      <div class="diary-mini">
+        <div class="diary-mini__title"><a href="#diary-detail">2025 年终总结</a></div>
+        <div class="diary-mini__date">2025.12.31</div>
+      </div>
+      <div style="margin-top:var(--space-4)">
+        <a href="#diaries" class="btn btn--ghost btn--sm">查看全部 →</a>
+      </div>
+    </div>
+
+    <!-- 测验入口 -->
+    <div class="bento-card page-enter-delay2">
+      <div class="bento-card__label">Quiz</div>
+      <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:var(--space-4)">12 道关于我的问题，试试你能答对多少？</p>
+      <a href="#quiz" class="btn btn--primary btn--sm">开始测验</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- 日记列表 - 时间线（带筛选）                                    -->
+<!-- ============================================================== -->
+<section id="diaries" class="prototype-section">
+  <div class="page-header page-enter-delay">
+    <div class="page-header__en">— Writings</div>
+    <h1 class="page-header__title">日记</h1>
+    <p class="page-header__desc">记录日常所思所想，不定期更新</p>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item reveal visible">
+      <div class="tl-item__dot"></div>
+      <div class="tl-item__date">2025.12.31 · 年末</div>
+      <h3 class="tl-item__title"><a href="#diary-detail">2025 年终总结</a></h3>
+      <p class="tl-item__preview">又到了写年终总结的时候。这一年发生了很多变化，换了新的工作环境，也开始了一些新的个人项目……</p>
+      <div class="tl-item__meta">
+        <span class="tag">年终</span>
+        <span class="tag">随笔</span>
+        <span class="tag tag--accent">📝 思考</span>
+      </div>
+    </div>
+
+    <div class="tl-item reveal visible">
+      <div class="tl-item__dot"></div>
+      <div class="tl-item__date">2025.11.15 · 旅行</div>
+      <h3 class="tl-item__title"><a href="#diary-detail">秋日京都漫步</a></h3>
+      <p class="tl-item__preview">十一月的京都，红叶正好。从清水寺走到哲学之道，每一步都是风景。分享一些沿途的见闻和照片……</p>
+      <div class="tl-item__meta">
+        <span class="tag">旅行</span>
+        <span class="tag">京都</span>
+        <span class="tag tag--accent">🍁 秋</span>
+      </div>
+    </div>
+
+    <div class="tl-item reveal visible">
+      <div class="tl-item__dot"></div>
+      <div class="tl-item__date">2025.11.08 · 技术</div>
+      <h3 class="tl-item__title"><a href="#diary-detail">关于 Minimal API 设计的一些思考</a></h3>
+      <p class="tl-item__preview">最近在做一个新的 API 项目，尝试了 Minimal API 的设计范式。与传统的 Controller 模式相比，有得有失……</p>
+      <div class="tl-item__meta">
+        <span class="tag">技术</span>
+        <span class="tag">API</span>
+        <span class="tag tag--accent">💻 编程</span>
+      </div>
+    </div>
+
+    <div class="tl-item reveal">
+      <div class="tl-item__dot"></div>
+      <div class="tl-item__date">2025.10.20 · 读书</div>
+      <h3 class="tl-item__title"><a href="#diary-detail">读《设计的觉醒》笔记</a></h3>
+      <p class="tl-item__preview">田中一光的这本设计随笔，读来有种深夜对谈的感觉。他对"空"与"白"的理解，与日本美学的核心一脉相承……</p>
+      <div class="tl-item__meta">
+        <span class="tag">读书</span>
+        <span class="tag">设计</span>
+        <span class="tag tag--accent">📖 阅读</span>
+      </div>
+    </div>
+
+    <!-- 分页 -->
+    <div class="pagination">
+      <a href="#" class="page-link page-link--disabled">‹</a>
+      <a href="#" class="page-link page-link--active">1</a>
+      <a href="#" class="page-link">2</a>
+      <a href="#" class="page-link">3</a>
+      <a href="#" class="page-link">›</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- 日记详情                                                       -->
+<!-- ============================================================== -->
+<section id="diary-detail" class="prototype-section">
+  <div class="page-header">
+    <div class="prototype-tag" style="margin-bottom:var(--space-3)">日记详情页预览</div>
+  </div>
+
+  <article class="article-wrapper">
+    <header class="article-header">
+      <div class="article-header__en">— 2025.11.15 · Kyoto</div>
+      <h1 class="article-header__title">秋日京都漫步</h1>
+      <div class="article-header__meta">
+        <span>2025年11月15日</span>
+        <span class="sep">·</span>
+        <span>🍁 旅行</span>
+        <span class="sep">·</span>
+        <span>❤️ 12</span>
+      </div>
+    </header>
+
+    <div class="article-body">
+      <p>十一月的京都，是我觉得最美的季节。这次趁着红叶季，安排了三天两夜的短途旅行。</p>
+
+      <h2>第一天：清水寺</h2>
+      <p>清晨从大阪出发，到达京都站时正好九点。坐公交到清水寺，沿途已经能看到零星的红色。</p>
+      <p>清水寺的舞台正在维修，但周围的红叶已经红得正好。站在高处俯瞰整个京都市区，远处的山峦层层叠叠，近处的红叶与寺庙的橙色建筑相映成趣。</p>
+
+      <blockquote>「红叶如锦，秋意正浓。古寺的钟声回荡在山谷间，仿佛穿越了千年的时光。」</blockquote>
+
+      <h2>哲学之道</h2>
+      <p>第二天一早，从银阁寺出发沿着哲学之道散步。这是一条约 2 公里的沿溪小道，因日本哲学家西田几多郎常在此散步而得名。</p>
+      <p>虽然樱花季才是这里最著名的时节，但秋天的哲学之道也有别样的韵味。红叶落在溪水上，随着水流缓缓飘动。路上行人不多，偶尔遇到遛狗的当地居民，互相点头微笑。</p>
+    </div>
+
+    <div class="article-nav">
+      <div>
+        <div class="article-nav__label">← 上一篇</div>
+        <a href="#">关于 Minimal API 设计的一些思考</a>
+      </div>
+      <div class="article-nav--next">
+        <div class="article-nav__label">下一篇 →</div>
+        <a href="#">读《设计的觉醒》笔记</a>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- ============================================================== -->
+<!-- 作品集                                                         -->
+<!-- ============================================================== -->
+<section id="projects" class="prototype-section">
+  <div class="page-header page-enter-delay">
+    <div class="page-header__en">— Portfolio</div>
+    <h1 class="page-header__title">作品集</h1>
+    <p class="page-header__desc">一些我做过的项目和实验</p>
+  </div>
+
+  <div class="cat-filters">
+    <button class="cat-filter cat-filter--active">全部</button>
+    <button class="cat-filter">Web</button>
+    <button class="cat-filter">工具</button>
+    <button class="cat-filter">设计</button>
+    <button class="cat-filter">AI</button>
+  </div>
+
+  <div class="projects-grid">
+    <div class="project-card reveal visible">
+      <div class="project-card__img-placeholder">📊</div>
+      <div class="project-card__body">
+        <h3 class="project-card__title">分析仪表盘</h3>
+        <p class="project-card__desc">一个轻量级的数据分析仪表盘，支持自定义指标和可视化配置。</p>
+        <div class="project-card__tags">
+          <span class="tag">Python</span>
+          <span class="tag">Flask</span>
+          <span class="tag">Chart.js</span>
+        </div>
+        <div class="project-card__links">
+          <a href="#">🔗 演示</a>
+          <a href="#">📂 源码</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-card reveal visible">
+      <div class="project-card__img-placeholder">📝</div>
+      <div class="project-card__body">
+        <h3 class="project-card__title">Markdown 笔记</h3>
+        <p class="project-card__desc">一个支持实时预览的在线 Markdown 编辑器，支持导出和云同步。</p>
+        <div class="project-card__tags">
+          <span class="tag">React</span>
+          <span class="tag">Node.js</span>
+          <span class="tag">WebSocket</span>
+        </div>
+        <div class="project-card__links">
+          <a href="#">🔗 演示</a>
+          <a href="#">📂 源码</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-card reveal visible">
+      <div class="project-card__img-placeholder">🎨</div>
+      <div class="project-card__body">
+        <h3 class="project-card__title">配色工具</h3>
+        <p class="project-card__desc">从图片中提取配色方案，生成完整的 Design Token 和 CSS 变量。</p>
+        <div class="project-card__tags">
+          <span class="tag">Python</span>
+          <span class="tag">OpenCV</span>
+          <span class="tag">CLI</span>
+        </div>
+        <div class="project-card__links">
+          <a href="#">📂 源码</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-card__img-placeholder">🤖</div>
+      <div class="project-card__body">
+        <h3 class="project-card__title">AI 聊天机器人</h3>
+        <p class="project-card__desc">基于大语言模型的对话机器人，支持上下文记忆和知识库检索。</p>
+        <div class="project-card__tags">
+          <span class="tag">Python</span>
+          <span class="tag">LLM</span>
+          <span class="tag">FastAPI</span>
+        </div>
+        <div class="project-card__links">
+          <a href="#">📂 源码</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding-bottom:var(--space-16)">
+    <div class="pagination">
+      <a href="#" class="page-link page-link--disabled">‹</a>
+      <a href="#" class="page-link page-link--active">1</a>
+      <a href="#" class="page-link">2</a>
+      <a href="#" class="page-link">›</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- 留言板                                                         -->
+<!-- ============================================================== -->
+<section id="messages" class="prototype-section">
+  <div class="page-header page-enter-delay">
+    <div class="page-header__en">— Guestbook</div>
+    <h1 class="page-header__title">留言板</h1>
+    <p class="page-header__desc">留下你想说的话，我会看到的</p>
+  </div>
+
+  <div class="messages-wrapper">
+    <!-- 留言表单 -->
+    <div class="msg-form">
+      <form onsubmit="return false">
+        <div class="form-group">
+          <label class="form-label" for="msg-name">昵称</label>
+          <input type="text" id="msg-name" class="form-input" placeholder="怎么称呼你" maxlength="50">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="msg-content">内容</label>
+          <textarea id="msg-content" class="form-textarea" placeholder="写点什么..." style="min-height:100px"></textarea>
+        </div>
+        <input type="hidden" name="csrftoken" value="demo-token">
+        <button type="submit" class="btn btn--primary">发送留言</button>
+      </form>
+    </div>
+
+    <!-- 留言列表 -->
+    <div class="msg-list">
+      <!-- 置顶留言 -->
+      <div class="msg-item msg-item--pinned">
+        <div class="msg-item__pin">📌 置顶</div>
+        <div class="msg-item__header">
+          <div class="msg-item__avatar">主</div>
+          <span class="msg-item__name">站长</span>
+          <span class="msg-item__time">2025.12.01</span>
+        </div>
+        <div class="msg-item__content">欢迎来到我的小站！有什么想说的都可以在这里留言，我会定期查看并回复。🌿</div>
+      </div>
+
+      <div class="msg-item">
+        <div class="msg-item__header">
+          <div class="msg-item__avatar">小</div>
+          <span class="msg-item__name">小明</span>
+          <span class="msg-item__time">2025.11.28</span>
+        </div>
+        <div class="msg-item__content">网站设计好有感觉！很喜欢这种日式简约风。想问一下你是用什么技术栈做的？</div>
+      </div>
+
+      <div class="msg-item">
+        <div class="msg-item__header">
+          <div class="msg-item__avatar">L</div>
+          <span class="msg-item__name">Lin</span>
+          <span class="msg-item__time">2025.11.20</span>
+        </div>
+        <div class="msg-item__content">看到日记里的京都旅行分享，让我想起了自己秋天的京都之行。哲学之道真的很美，下次可以试试去岚山坐小火车～</div>
+      </div>
+
+      <div style="text-align:center;margin-top:var(--space-8)">
+        <div class="pagination">
+          <a href="#" class="page-link page-link--disabled">‹</a>
+          <a href="#" class="page-link page-link--active">1</a>
+          <a href="#" class="page-link">2</a>
+          <a href="#" class="page-link">3</a>
+          <a href="#" class="page-link">›</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- 测验游戏                                                       -->
+<!-- ============================================================== -->
+<section id="quiz" class="prototype-section">
+  <div class="page-header">
+    <div class="page-header__en">— Quiz</div>
+    <h1 class="page-header__title">关于我的测验</h1>
+    <p class="page-header__desc">看看你有多了解我</p>
+  </div>
+
+  <div class="quiz-wrapper">
+    <!-- 欢迎页 -->
+    <div class="quiz-welcome">
+      <div class="quiz-welcome__en">— How well do you know me?</div>
+      <h2 class="quiz-welcome__title">准备好了吗？</h2>
+      <p class="quiz-welcome__desc">一共 12 道题，每道题四个选项。答完后可以看到你的得分和正确答案的解析。</p>
+      <button class="btn btn--primary">开始答题</button>
+    </div>
+
+    <!-- 进度点 -->
+    <div class="q-progress" style="display:none">
+      <span class="q-progress__dot q-progress__dot--active"></span>
+      <span class="q-progress__dot"></span>
+      <span class="q-progress__dot"></span>
+      <span class="q-progress__dot"></span>
+      <span class="q-progress__dot"></span>
+    </div>
+
+    <!-- 答题界面 -->
+    <div style="display:none">
+      <div class="q-text">我最喜欢的编程语言是什么？</div>
+      <div class="q-options">
+        <button class="q-option"><span class="q-option__letter">A</span> Python</button>
+        <button class="q-option"><span class="q-option__letter">B</span> JavaScript</button>
+        <button class="q-option"><span class="q-option__letter">C</span> Rust</button>
+        <button class="q-option"><span class="q-option__letter">D</span> Go</button>
+      </div>
+    </div>
+
+    <!-- 结果 -->
+    <div style="display:none">
+      <div class="q-result">
+        <div class="q-score">10 <span style="font-size:1.5rem">/ 12</span></div>
+        <div class="q-score__label">正确率 83%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- 关于                                                           -->
+<!-- ============================================================== -->
+<section id="about" class="prototype-section">
+  <div class="page-header page-enter-delay">
+    <div class="page-header__en">— About</div>
+    <h1 class="page-header__title">关于我</h1>
+  </div>
+
+  <div class="about-wrapper">
+    <div class="about-content">
+      <p>一个喜欢写代码、拍照和旅行的人。目前在东京做全栈开发，业余时间维护几个开源项目和这个个人主页。</p>
+      <p style="margin-top:var(--space-5)">相信好的设计应该是不言自明的——无论是代码架构还是 UI 界面。追求简洁、克制、有温度的创作。</p>
+      <p style="margin-top:var(--space-5)">如果你有任何问题或想法想交流，欢迎在<a href="#messages" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">留言板</a>给我留言。</p>
+
+      <div style="margin-top:var(--space-10);padding-top:var(--space-8);border-top:1px solid var(--border-light)">
+        <div style="display:flex;gap:var(--space-6);flex-wrap:wrap">
+          <div>
+            <div style="font-size:0.7rem;color:var(--text-muted);letter-spacing:0.1em;margin-bottom:var(--space-2)">Email</div>
+            <a href="mailto:hello@example.com" style="color:var(--accent);font-size:0.9rem">hello@example.com</a>
+          </div>
+          <div>
+            <div style="font-size:0.7rem;color:var(--text-muted);letter-spacing:0.1em;margin-bottom:var(--space-2)">GitHub</div>
+            <a href="#" style="color:var(--accent);font-size:0.9rem">@username</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- 404 页面                                                       -->
+<!-- ============================================================== -->
+<section class="prototype-section">
+  <div class="page-header">
+    <div class="prototype-tag" style="margin-bottom:var(--space-3)">404 页面</div>
+  </div>
+  <div class="page-404">
+    <div class="page-404__num">404</div>
+    <p class="page-404__text">找不到这个页面，它可能已经消失了。</p>
+    <a href="#home" class="btn btn--primary">回到首页</a>
+  </div>
+</section>
+
+</main>
+
+<!-- ============================================================== -->
+<!-- 页脚                                                           -->
+<!-- ============================================================== -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__divider"></div>
+    <p class="footer__text">© 2025 渡辺太郎 · 用 ❤️ 构建</p>
+  </div>
+</footer>
+
+<!-- 滚动渐入效果 -->
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // 导航高亮
+  document.querySelectorAll('.nav__link').forEach(link => {
+    link.addEventListener('click', function() {
+      document.querySelectorAll('.nav__link').forEach(l => l.classList.remove('nav__link--active'));
+      this.classList.add('nav__link--active');
+      // 关闭移动端菜单
+      document.querySelector('.nav__links')?.classList.remove('nav__links--open');
+    });
+  });
+
+  // 汉堡菜单
+  document.querySelector('.nav__hamburger')?.addEventListener('click', function() {
+    document.querySelector('.nav__links')?.classList.toggle('nav__links--open');
+  });
+
+  // 分类筛选交互
+  document.querySelectorAll('.cat-filter').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.cat-filter').forEach(b => b.classList.remove('cat-filter--active'));
+      this.classList.add('cat-filter--active');
+    });
+  });
+</script>
+
+</body>
+</html>

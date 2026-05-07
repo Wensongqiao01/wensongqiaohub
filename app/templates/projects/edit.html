@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}编辑作品 - {{ site_title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header__en">— Management</div>
+  <h1 class="page-header__title">编辑作品</h1>
+</div>
+
+<div class="manage-wrapper">
+  <form method="POST" action="/manage/projects/{{ project.id }}/edit">
+    <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+
+    <div class="form-group">
+      <label class="form-label" for="title">标题</label>
+      <input type="text" id="title" name="title" class="form-input" required
+             maxlength="200" value="{{ project.title }}">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="description">描述</label>
+      <textarea id="description" name="description" class="form-textarea"
+                style="min-height: 80px;">{{ project.description }}</textarea>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+      <div class="form-group">
+        <label class="form-label" for="category">分类</label>
+        <select id="category" name="category" class="form-input">
+          {% for cat in ['web', 'tool', 'design', 'ai', 'mobile', 'game', 'other'] %}
+          <option value="{{ cat }}" {% if project.category == cat %}selected{% endif %}>
+            {% if cat == 'web' %}Web{% elif cat == 'tool' %}工具{% elif cat == 'design' %}设计{% elif cat == 'ai' %}AI / ML{% elif cat == 'mobile' %}移动端{% elif cat == 'game' %}游戏{% else %}其他{% endif %}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="tags">标签</label>
+        <input type="text" id="tags" name="tags" class="form-input"
+               maxlength="500" value="{{ project.tags or '' }}"
+               placeholder="用逗号分隔">
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+      <div class="form-group">
+        <label class="form-label" for="demo_url">演示链接</label>
+        <input type="url" id="demo_url" name="demo_url" class="form-input"
+               value="{{ project.demo_url or '' }}">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="source_url">源码链接</label>
+        <input type="url" id="source_url" name="source_url" class="form-input"
+               value="{{ project.source_url or '' }}">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="image_url">封面图片 URL</label>
+      <input type="url" id="image_url" name="image_url" class="form-input"
+             value="{{ project.image_url or '' }}">
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+      <div class="form-group">
+        <label class="form-label" for="order">排序序号</label>
+        <input type="number" id="order" name="order" class="form-input"
+               value="{{ project.order }}" min="0">
+      </div>
+      <div class="form-group" style="display: flex; align-items: center; padding-top: 1.5rem;">
+        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer;">
+          <input type="hidden" name="is_published" value="false">
+          <input type="checkbox" name="is_published" value="true"
+                 {% if project.is_published %}checked{% endif %}>
+          <span class="form-label" style="margin-bottom: 0;">已发布</span>
+        </label>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: var(--space-3); margin-top: var(--space-6);">
+      <button type="submit" class="btn btn--primary">保存修改</button>
+      <a href="/manage/projects" class="btn btn--outline">取消</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}{{ diary.title }} - {{ site_title }}{% endblock %}
+
+{% block content %}
+<article class="article-wrapper">
+
+  <!-- 文章头 -->
+  <header class="article-header">
+    <div class="article-header__en">
+      — {{ diary.created_at.strftime('%Y.%m.%d') }}
+      {% if diary.mood %} · {{ diary.mood }}{% endif %}
+    </div>
+    <h1 class="article-header__title">{{ diary.title }}</h1>
+    <div class="article-header__meta">
+      <span>{{ diary.created_at.strftime('%Y年%m月%d日') }}</span>
+      {% if diary.mood %}
+      <span class="sep">·</span>
+      <span>{{ diary.mood }}</span>
+      {% endif %}
+      {% if diary.tags %}
+      {% for tag in diary.tags.split(',') %}
+      <span class="sep">·</span>
+      <span>{{ tag.strip() }}</span>
+      {% endfor %}
+      {% endif %}
+      {% if not diary.is_public %}
+      <span class="sep">·</span>
+      <span style="opacity: 0.6;">🔒 私密</span>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- 正文 -->
+  <div class="article-body">
+    {{ html_content|safe }}
+  </div>
+
+  <!-- 点赞 -->
+  <div style="display: flex; align-items: center; justify-content: center; gap: var(--space-3); margin-top: var(--space-10); padding-top: var(--space-8); border-top: 1px solid var(--border-light);">
+    <button
+      id="like-btn"
+      class="btn btn--outline btn--sm"
+      data-id="{{ diary.id }}"
+      data-liked="false"
+      aria-label="点赞"
+      style="font-size: var(--text-lg);"
+    >
+      <span id="like-icon">🤍</span>
+      <span id="like-count">{{ diary.likes_count or 0 }}</span>
+    </button>
+  </div>
+
+  <script>
+  (function() {
+    var btn = document.getElementById('like-btn');
+    if (!btn) return;
+    var icon = document.getElementById('like-icon');
+    var count = document.getElementById('like-count');
+    var diaryId = btn.dataset.id;
+    var storageKey = 'liked_diary_' + diaryId;
+
+    if (localStorage.getItem(storageKey)) {
+      btn.dataset.liked = 'true';
+      icon.textContent = '❤️';
+    }
+
+    btn.addEventListener('click', async function() {
+      if (this.dataset.liked === 'true') return;
+      try {
+        var res = await fetch('/diaries/' + diaryId + '/like', { method: 'POST' });
+        if (!res.ok) throw new Error('Network error');
+        var data = await res.json();
+        count.textContent = data.likes_count;
+        this.dataset.liked = 'true';
+        icon.textContent = '❤️';
+        localStorage.setItem(storageKey, '1');
+      } catch (e) {
+        console.error('点赞失败:', e);
+      }
+    });
+  })();
+  </script>
+
+  <!-- 上下篇导航 -->
+  <nav class="article-nav">
+    <div>
+      {% if prev_entry %}
+      <div class="article-nav__label">← 上一篇</div>
+      <a href="/diaries/{{ prev_entry.id }}">{{ prev_entry.title }}</a>
+      {% endif %}
+    </div>
+    <div class="article-nav--next">
+      {% if next_entry %}
+      <div class="article-nav__label">下一篇 →</div>
+      <a href="/diaries/{{ next_entry.id }}">{{ next_entry.title }}</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- 管理操作 -->
+  {% if is_local %}
+  <div style="display: flex; gap: var(--space-3); margin-top: var(--space-10); padding-top: var(--space-8); border-top: 1px solid var(--border-light);">
+    <a href="/manage/diaries/{{ diary.id }}/edit" class="btn btn--outline btn--sm">编辑</a>
+    <form method="POST" action="/manage/diaries/{{ diary.id }}/delete" style="display: inline;" onsubmit="return confirm('确定删除「{{ diary.title }}」吗？')">
+      <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+      <button type="submit" class="btn btn--ghost btn--sm" style="color: var(--text-muted);">删除</button>
+    </form>
+  </div>
+  {% endif %}
+
+</article>
+{% endblock %}

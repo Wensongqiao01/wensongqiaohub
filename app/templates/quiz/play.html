@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}测验 - {{ site_title }}{% endblock %}
+
+{% block content %}
+<!-- 页面头部 -->
+<div class="page-header">
+  <div class="page-header__en">— Quiz</div>
+  <h1 class="page-header__title">关于我的测验</h1>
+  <p class="page-header__desc">看看你有多了解我</p>
+</div>
+
+<!-- JS 动态渲染容器 -->
+<div class="quiz-container" id="quiz-app">
+  <!-- quiz.js 在此渲染欢迎页、答题、回顾、结果等阶段 -->
+</div>
+
+<!-- 嵌入题目数据（JSON 格式）
+     数据格式说明:
+     [
+       {
+         "id": 1,
+         "question": "题目文字",
+         "options": ["选项A", "选项B", "选项C", "选项D"],
+         "correct_index": 0,      // 正确答案索引（仅在服务端使用）
+         "explanation": "解析文字",
+         "image_url": null,        // 题目图片 URL（可选）
+         "option_images": null     // 选项图片列表（可选）
+       }
+     ]
+-->
+<script id="quiz-data" type="application/json">{{ quiz_data|safe }}</script>
+<script src="/static/js/quiz.js"></script>
+{% endblock %}

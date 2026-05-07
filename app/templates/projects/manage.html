@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}作品管理 - {{ site_title }}{% endblock %}
+
+{% block content %}
+<div class="manage-header">
+  <h1 class="manage-header__title">作品管理</h1>
+  <button class="btn btn--primary" onclick="toggleForm()" id="toggle-form-btn">新建作品</button>
+</div>
+
+<!-- ===== 新建 / 编辑作品表单 ===== -->
+<div id="project-form" class="card" style="display: none; margin-bottom: var(--space-8);">
+  <h2 style="font-size: var(--text-lg); font-weight: 600; margin-bottom: var(--space-5);" id="form-title">新建作品</h2>
+
+  <form method="POST" action="/manage/projects/create" id="project-form-fields">
+    <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+    <input type="hidden" name="project_id" id="field-project-id" value="">
+
+    <div class="form-group">
+      <label class="form-label" for="field-title">标题</label>
+      <input type="text" id="field-title" name="title" class="form-input" required
+             maxlength="200" placeholder="作品名称">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="field-description">描述</label>
+      <textarea id="field-description" name="description" class="form-textarea"
+                style="min-height: 80px;" placeholder="简要描述这个作品..."></textarea>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+      <div class="form-group">
+        <label class="form-label" for="field-category">分类</label>
+        <select id="field-category" name="category" class="form-input">
+          <option value="web">Web</option>
+          <option value="tool">工具</option>
+          <option value="design">设计</option>
+          <option value="ai">AI / ML</option>
+          <option value="mobile">移动端</option>
+          <option value="game">游戏</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="field-tags">标签</label>
+        <input type="text" id="field-tags" name="tags" class="form-input"
+               maxlength="500" placeholder="用逗号分隔，例如：Python, Flask">
+        <p class="form-hint">多个标签用英文逗号分隔</p>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+      <div class="form-group">
+        <label class="form-label" for="field-demo-url">演示链接</label>
+        <input type="url" id="field-demo-url" name="demo_url" class="form-input"
+               placeholder="https://example.com/demo">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="field-source-url">源码链接</label>
+        <input type="url" id="field-source-url" name="source_url" class="form-input"
+               placeholder="https://github.com/user/repo">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="field-image-url">封面图片 URL</label>
+      <input type="url" id="field-image-url" name="image_url" class="form-input"
+             placeholder="https://example.com/image.jpg (可选)">
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+      <div class="form-group">
+        <label class="form-label" for="field-order">排序序号</label>
+        <input type="number" id="field-order" name="order" class="form-input"
+               value="0" min="0">
+        <p class="form-hint">数字越小越靠前</p>
+      </div>
+
+      <div class="form-group">
+        <label class="toggle" style="margin-top: var(--space-6);">
+          <input type="hidden" name="is_published" value="false">
+          <input type="checkbox" name="is_published" value="true" checked id="field-is-published">
+          <div class="toggle__track">
+            <div class="toggle__thumb"></div>
+          </div>
+          <span class="form-label" style="margin-bottom: 0;">立即发布</span>
+        </label>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: var(--space-3); margin-top: var(--space-6);">
+      <button type="submit" class="btn btn--primary">保存</button>
+      <button type="button" class="btn btn--outline" onclick="cancelForm()">取消</button>
+    </div>
+  </form>
+</div>
+
+<!-- ===== 作品列表 ===== -->
+{% if projects %}
+<div class="project-list">
+  {% for project in projects %}
+  <div class="question-card" data-project-id="{{ project.id }}">
+    <div class="question-card__header">
+      <div>
+        <div class="question-card__question">
+          #{{ project.order }} {{ project.title }}
+        </div>
+        <div class="question-card__order">
+          {{ project.category }} · ID: {{ project.id }}
+          · {{ project.created_at.strftime('%Y-%m-%d') if project.created_at else '' }}
+        </div>
+      </div>
+      <div class="question-card__actions">
+        <!-- 发布状态 -->
+        <span class="badge {% if project.is_published %}badge--published{% else %}badge--draft{% endif %}">
+          {{ '已发布' if project.is_published else '草稿' }}
+        </span>
+
+        <!-- 发布切换 -->
+        <form method="POST" action="/manage/projects/{{ project.id }}/toggle-publish"
+              style="display: inline;" class="toggle-publish-form">
+          <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+          <button type="submit" class="btn btn--outline btn--sm">
+            {{ '下架' if project.is_published else '发布' }}
+          </button>
+        </form>
+
+        <!-- 编辑按钮 -->
+        <button class="btn btn--outline btn--sm"
+                onclick="editProject({{ project.id }})">
+          编辑
+        </button>
+
+        <!-- 删除 -->
+        <form method="POST" action="/manage/projects/{{ project.id }}/delete"
+              style="display: inline;"
+              onsubmit="return confirm('确定删除作品「{{ project.title }}」吗？此操作不可恢复。')">
+          <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+          <button type="submit" class="btn btn--danger btn--sm">删除</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 作品预览信息 -->
+    <div style="display: flex; gap: var(--space-4); margin-top: var(--space-3);">
+      {% if project.image_url %}
+      <img src="{{ project.image_url }}" alt="{{ project.title }}"
+           style="width: 100px; height: 64px; object-fit: cover; border-radius: var(--radius-sm); flex-shrink: 0;">
+      {% endif %}
+      <div style="flex: 1; min-width: 0;">
+        <p style="font-size: var(--text-sm); color: var(--text-secondary); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+          {{ project.description or '暂无描述' }}
+        </p>
+        <div style="display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2);">
+          {% if project.tags %}
+          {% for tag in project.tags.split(',') %}
+          <span class="badge badge--tag">{{ tag.strip() }}</span>
+          {% endfor %}
+          {% endif %}
+        </div>
+        <div style="display: flex; gap: var(--space-3); margin-top: var(--space-2); font-size: var(--text-xs);">
+          {% if project.demo_url %}
+          <a href="{{ project.demo_url }}" target="_blank" rel="noopener" style="color: var(--text-secondary);">
+            &#128279; 演示
+          </a>
+          {% endif %}
+          {% if project.source_url %}
+          <a href="{{ project.source_url }}" target="_blank" rel="noopener" style="color: var(--text-secondary);">
+            &#128193; 源码
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-state__icon">&#128736;</div>
+  <h2 class="empty-state__title">还没有作品</h2>
+  <p class="empty-state__text">点击上方「新建作品」按钮开始添加你的作品。</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/**
+ * 切换新建/编辑表单的显示
+ */
+var formVisible = false;
+
+function toggleForm() {
+  formVisible = !formVisible;
+  var form = document.getElementById('project-form');
+  var btn = document.getElementById('toggle-form-btn');
+  form.style.display = formVisible ? 'block' : 'none';
+  btn.textContent = formVisible ? '收起表单' : '新建作品';
+}
+
+function cancelForm() {
+  formVisible = false;
+  document.getElementById('project-form').style.display = 'none';
+  document.getElementById('toggle-form-btn').textContent = '新建作品';
+  // 重置表单为新建模式
+  document.getElementById('form-title').textContent = '新建作品';
+  document.getElementById('project-form-fields').reset();
+  document.getElementById('field-project-id').value = '';
+  document.getElementById('project-form-fields').action = '/manage/projects/create';
+}
+
+/**
+ * 编辑作品：加载已有数据到表单
+ */
+function editProject(projectId) {
+  // 从服务端获取作品 JSON 数据
+  fetch('/manage/projects/' + projectId + '/data')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      // 填充表单
+      document.getElementById('field-project-id').value = data.id;
+      document.getElementById('field-title').value = data.title;
+      document.getElementById('field-description').value = data.description;
+      document.getElementById('field-category').value = data.category;
+      document.getElementById('field-tags').value = data.tags || '';
+      document.getElementById('field-demo-url').value = data.demo_url || '';
+      document.getElementById('field-source-url').value = data.source_url || '';
+      document.getElementById('field-image-url').value = data.image_url || '';
+      document.getElementById('field-order').value = data.order;
+
+      var pubCheckbox = document.getElementById('field-is-published');
+      var pubHidden = pubCheckbox.previousElementSibling;
+      pubCheckbox.checked = data.is_published;
+      pubHidden.disabled = data.is_published; // hidden 不需要改变
+
+      // 切换表单到编辑模式
+      document.getElementById('form-title').textContent = '编辑作品';
+      document.getElementById('project-form-fields').action = '/manage/projects/' + data.id + '/edit';
+
+      // 显示表单
+      formVisible = true;
+      document.getElementById('project-form').style.display = 'block';
+      document.getElementById('toggle-form-btn').textContent = '收起表单';
+    })
+    .catch(function () {
+      alert('加载作品数据失败，请重试');
+    });
+}
+
+/**
+ * 发布状态切换 — AJAX 提交，局部更新不刷新页面
+ */
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.toggle-publish-form').forEach(function (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var btn = this.querySelector('button[type="submit"]');
+      var badge = this.closest('.question-card').querySelector('.badge');
+      var formData = new FormData(this);
+
+      fetch(this.action, {
+        method: 'POST',
+        body: formData,
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.is_published) {
+          btn.textContent = '下架';
+          badge.textContent = '已发布';
+          badge.className = 'badge badge--published';
+        } else {
+          btn.textContent = '发布';
+          badge.textContent = '草稿';
+          badge.className = 'badge badge--draft';
+        }
+      })
+      .catch(function () {
+        alert('操作失败，请重试');
+      });
+    });
+  });
+});
+</script>
+{% endblock %}

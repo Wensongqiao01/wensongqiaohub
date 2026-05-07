@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}{% if diary %}编辑日记{% else %}写新日记{% endif %} - {{ site_title }}{% endblock %}
+
+{% block content %}
+
+<div class="page-header page-enter-delay" style="padding-bottom: var(--space-6);">
+  <div class="page-header__en">— Editor</div>
+  <h1 class="page-header__title">
+    {% if diary %}编辑日记{% else %}写新日记{% endif %}
+  </h1>
+</div>
+
+<div style="max-width: 720px; margin: 0 auto var(--space-16);">
+
+  <form method="POST" action="{% if diary %}/manage/diaries/{{ diary.id }}/edit{% else %}/manage/diaries{% endif %}">
+    <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+
+    <!-- 标题 -->
+    <div class="form-group">
+      <label class="form-label" for="title">标题</label>
+      <input
+        type="text"
+        id="title"
+        name="title"
+        class="form-input"
+        value="{{ diary.title if diary else '' }}"
+        required
+        maxlength="200"
+        placeholder="日记标题"
+      >
+    </div>
+
+    <!-- 内容 -->
+    <div class="form-group">
+      <label class="form-label" for="content">内容</label>
+      <p class="form-hint" style="margin-top: 0; margin-bottom: var(--space-2);">支持 Markdown 语法</p>
+      <textarea
+        id="content"
+        name="content"
+        class="form-textarea"
+        required
+        placeholder="用 Markdown 写下你的想法..."
+        style="min-height: 320px;"
+      >{{ diary.content if diary else '' }}</textarea>
+    </div>
+
+    <!-- 心情 -->
+    <div class="form-group">
+      <label class="form-label">心情</label>
+      <div class="emoji-picker" id="emoji-picker" style="display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-2);">
+        {% set moods = [
+          ('😊', '开心'), ('🥰', '温馨'), ('😢', '伤感'), ('🤔', '思考'),
+          ('😴', '疲惫'), ('🥳', '兴奋'), ('😎', '得意'), ('🤗', '感恩'),
+          ('😌', '平静'), ('😅', '尴尬'), ('🤩', '惊喜'), ('🥺', '感动'),
+        ] %}
+        {% for emoji, label in moods %}
+        <button type="button" class="emoji-picker__btn"
+          data-emoji="{{ emoji }}"
+          title="{{ label }}"
+          aria-label="{{ label }}"
+          style="width: 40px; height: 40px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card); cursor: pointer; font-size: 1.1rem; transition: all var(--transition); display: flex; align-items: center; justify-content: center;"
+          onmouseover="this.style.borderColor='var(--accent)'"
+          onmouseout="this.style.borderColor='var(--border)'"
+          {% if diary and diary.mood == emoji %}data-selected{% endif %}>
+          {{ emoji }}
+        </button>
+        {% endfor %}
+      </div>
+      <input type="hidden" name="mood" id="mood-input" value="{{ diary.mood if diary else '' }}">
+      <p class="form-hint">点击选择心情表情</p>
+    </div>
+
+    <!-- 标签 -->
+    <div class="form-group">
+      <label class="form-label" for="tags">标签</label>
+      <input
+        type="text"
+        id="tags"
+        name="tags"
+        class="form-input"
+        value="{{ diary.tags if diary else '' }}"
+        maxlength="300"
+        placeholder="生活, 思考, 旅行"
+      >
+      <p class="form-hint">多个标签用英文逗号分隔</p>
+    </div>
+
+    <!-- 公开开关 -->
+    <div class="form-group">
+      <label style="display: flex; align-items: center; gap: var(--space-3); cursor: pointer;">
+        <input type="hidden" name="is_public" value="false">
+        <input type="checkbox" name="is_public" value="true"
+          {% if diary and diary.is_public %}checked{% endif %}
+          style="width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer;">
+        <span class="form-label" style="margin-bottom: 0; cursor: pointer;">公开发布</span>
+      </label>
+      <p class="form-hint" style="margin-left: 28px;">公开后所有人可见</p>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div style="display: flex; gap: var(--space-3); margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--border-light);">
+      <button type="submit" class="btn btn--primary">保存</button>
+      <a href="/manage/diaries" class="btn btn--outline">取消</a>
+    </div>
+  </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var picker = document.getElementById('emoji-picker');
+  var input = document.getElementById('mood-input');
+  if (!picker || !input) return;
+
+  picker.addEventListener('click', function(e) {
+    var btn = e.target.closest('.emoji-picker__btn');
+    if (!btn) return;
+
+    // 清除之前选中状态
+    picker.querySelectorAll('[data-selected]').forEach(function(el) {
+      el.removeAttribute('data-selected');
+      el.style.borderColor = 'var(--border)';
+      el.style.background = 'var(--card)';
+    });
+
+    // 标记选中
+    btn.setAttribute('data-selected', '');
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.background = 'var(--accent-subtle)';
+    input.value = btn.getAttribute('data-emoji');
+  });
+
+  // 恢复已有选中状态
+  var selected = picker.querySelector('[data-selected]');
+  if (selected) {
+    selected.style.borderColor = 'var(--accent)';
+    selected.style.background = 'var(--accent-subtle)';
+  }
+});
+</script>
+{% endblock %}

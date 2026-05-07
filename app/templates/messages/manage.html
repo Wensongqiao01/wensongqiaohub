@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}留言管理 - {{ site_title }}{% endblock %}
+
+{% block content %}
+<div class="manage-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-8);">
+  <h1 class="manage-header__title" style="font-size: 1.4rem; font-weight: 700;">📋 留言管理</h1>
+</div>
+
+{% if messages %}
+<div class="msg-list">
+  {% for msg in messages %}
+  <div class="msg-item{% if msg.is_pinned %} msg-item--pinned{% endif %}">
+    {% if msg.is_pinned %}
+    <div class="msg-item__pin">📌 置顶</div>
+    {% endif %}
+    <div class="msg-item__header">
+      <div class="msg-item__avatar">{{ msg.nickname[0] }}</div>
+      <span class="msg-item__name">{{ msg.nickname }}</span>
+      <span class="msg-item__time">{{ msg.created_at.strftime('%Y.%m.%d %H:%M') }}</span>
+    </div>
+    <div class="msg-item__content" style="margin-bottom: var(--space-3);">{{ msg.content }}</div>
+    <div style="display: flex; gap: var(--space-2); align-items: center;">
+      <form method="POST" action="/manage/messages/{{ msg.id }}/toggle-pin" style="display: inline;">
+        <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+        <button type="submit" class="btn btn--outline btn--sm">
+          {{ '取消置顶' if msg.is_pinned else '置顶' }}
+        </button>
+      </form>
+      <form method="POST" action="/manage/messages/{{ msg.id }}/delete" style="display: inline;"
+            onsubmit="return confirm('确定删除这条留言吗？')">
+        <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+        <button type="submit" class="btn btn--outline btn--sm" style="color: var(--color-error, #c0392b); border-color: var(--color-error, rgba(192,57,43,0.3));">删除</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- 分页 -->
+{% if total_pages > 1 %}
+<div class="pagination">
+  {% if page > 1 %}
+  <a href="/manage/messages?page={{ page - 1 }}" class="page-link">‹</a>
+  {% else %}
+  <span class="page-link page-link--disabled">‹</span>
+  {% endif %}
+  {% for p in range(1, total_pages + 1) %}
+  <a href="/manage/messages?page={{ p }}" class="page-link{% if p == page %} page-link--active{% endif %}">{{ p }}</a>
+  {% endfor %}
+  {% if page < total_pages %}
+  <a href="/manage/messages?page={{ page + 1 }}" class="page-link">›</a>
+  {% else %}
+  <span class="page-link page-link--disabled">›</span>
+  {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+  <div class="empty-state__icon">💬</div>
+  <h2 class="empty-state__title">还没有留言</h2>
+  <p class="empty-state__text">等待访客留下第一条留言</p>
+</div>
+{% endif %}
+{% endblock %}

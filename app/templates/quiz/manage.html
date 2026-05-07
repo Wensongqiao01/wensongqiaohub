@@ -1,0 +1,609 @@
+{% extends "base.html" %}
+
+{% block title %}测验管理 - {{ site_title }}{% endblock %}
+
+{% block content %}
+<div class="manage-header">
+  <h1 class="manage-header__title">📝 测验题目管理</h1>
+  <button class="btn btn--primary" onclick="toggleAddForm()">＋ 添加题目</button>
+</div>
+
+<!-- 添加题目表单 -->
+<div id="add-form" class="qm-form" style="display: none;">
+  <div class="qm-form__header">
+    <span class="qm-form__title">添加新题目</span>
+    <button class="qm-form__close" onclick="toggleAddForm()">&times;</button>
+  </div>
+  <div class="qm-form__body">
+    <form method="POST" action="/manage/quiz/questions">
+      <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+      <div class="form-group">
+        <label class="form-label" for="question">题目</label>
+        <input type="text" id="question" name="question" class="form-input" required placeholder="例如：我最喜欢的颜色是？">
+      </div>
+
+      <div class="qm-form-row">
+        <div class="form-group">
+          <label class="form-label" for="option_a">选项 A</label>
+          <input type="text" id="option_a" name="option_a" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="option_b">选项 B</label>
+          <input type="text" id="option_b" name="option_b" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="option_c">选项 C</label>
+          <input type="text" id="option_c" name="option_c" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="option_d">选项 D</label>
+          <input type="text" id="option_d" name="option_d" class="form-input" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">正确答案</label>
+        <div class="qm-answer-group">
+          {% for letter in ['A', 'B', 'C', 'D'] %}
+          <label class="qm-answer-option">
+            <input type="radio" name="correct_index" value="{{ loop.index0 }}" {% if loop.first %}checked{% endif %}>
+            {{ letter }}
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="explanation">解释（可选）</label>
+        <input type="text" id="explanation" name="explanation" class="form-input" placeholder="答完后显示的对这道题的解释">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="order">排序序号</label>
+        <input type="number" id="order" name="order" class="form-input" value="{{ questions|length + 1 }}" min="0">
+      </div>
+
+      <div class="form-group">
+        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: 0.85rem;">
+          <input type="checkbox" name="is_published" value="true" checked>
+          创建后立即发布
+        </label>
+      </div>
+
+      <div style="display: flex; gap: var(--space-3); margin-top: var(--space-4);">
+        <button type="submit" class="btn btn--primary">保存</button>
+        <button type="button" class="btn btn--outline" onclick="toggleAddForm()">取消</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 题目列表 -->
+{% if questions %}
+{% for q in questions %}
+{% set options = q.options %}
+<div class="qm-card" id="qm-card-{{ q.id }}">
+  <div class="qm-card__header">
+    <div class="qm-card__index">{{ q.order }}</div>
+    <div class="qm-card__body">
+      <div class="qm-card__question">{{ q.question }}</div>
+      <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: var(--space-1); font-family: var(--font-serif); font-style: italic;">ID: {{ q.id }}</div>
+
+      {% if q.image_url %}
+      <img src="{{ q.image_url }}" alt="{{ q.question }}" class="qm-card__question-img">
+      {% endif %}
+
+      <div class="qm-card__options">
+        {% for opt in options %}
+        {% set opt_letter = ['A', 'B', 'C', 'D'][loop.index0] %}
+        <div class="qm-card__option {% if loop.index0 == q.correct_index %}qm-card__option--correct{% endif %}">
+          {% set opt_images = q.option_images %}
+          {% if opt_images and opt_images[loop.index0] %}
+          <img src="{{ opt_images[loop.index0] }}" alt="" class="qm-card__option-img">
+          {% endif %}
+          <span>{{ opt_letter }}. {{ opt }}</span>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% if q.explanation %}
+      <div class="qm-card__explanation">💡 {{ q.explanation }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="qm-card__actions">
+    <span class="badge {% if q.is_published %}badge--published{% else %}badge--draft{% endif %}">
+      {{ '已发布' if q.is_published else '草稿' }}
+    </span>
+
+    <div class="qm-card__action-group">
+      <form method="POST" action="/manage/quiz/questions/{{ q.id }}/toggle-publish" style="display: inline;" class="toggle-publish-form">
+        <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+        <button type="submit" class="qm-card__action">
+          {{ '下架' if q.is_published else '发布' }}
+        </button>
+      </form>
+      <button class="qm-card__action" onclick="toggleEditForm({{ q.id }})">编辑</button>
+      <form method="POST" action="/manage/quiz/questions/{{ q.id }}/delete" style="display: inline;" onsubmit="return confirm('确定删除这道题目吗？')">
+        <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+        <button type="submit" class="qm-card__action qm-card__action--danger">删除</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 编辑表单 -->
+  <div id="edit-form-{{ q.id }}" class="qm-form" style="display: none;">
+    <div class="qm-form__header">
+      <span class="qm-form__title">编辑题目 #{{ q.order }}</span>
+      <button class="qm-form__close" onclick="toggleEditForm({{ q.id }})">&times;</button>
+    </div>
+    <div class="qm-form__body">
+      <form method="POST" action="/manage/quiz/questions/{{ q.id }}/edit">
+        <input type="hidden" name="csrftoken" value="{{ csrftoken }}">
+        <div class="form-group">
+          <label class="form-label" for="edit-question-{{ q.id }}">题目</label>
+          <input type="text" id="edit-question-{{ q.id }}" name="question" class="form-input" value="{{ q.question }}" required>
+        </div>
+
+        <div class="qm-form-row">
+          <div class="form-group">
+            <label class="form-label" for="edit-option_a-{{ q.id }}">选项 A</label>
+            <input type="text" id="edit-option_a-{{ q.id }}" name="option_a" class="form-input" value="{{ options[0] }}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-option_b-{{ q.id }}">选项 B</label>
+            <input type="text" id="edit-option_b-{{ q.id }}" name="option_b" class="form-input" value="{{ options[1] }}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-option_c-{{ q.id }}">选项 C</label>
+            <input type="text" id="edit-option_c-{{ q.id }}" name="option_c" class="form-input" value="{{ options[2] }}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-option_d-{{ q.id }}">选项 D</label>
+            <input type="text" id="edit-option_d-{{ q.id }}" name="option_d" class="form-input" value="{{ options[3] }}" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">正确答案</label>
+          <div class="qm-answer-group">
+            {% for letter in ['A', 'B', 'C', 'D'] %}
+            <label class="qm-answer-option">
+              <input type="radio" name="correct_index" value="{{ loop.index0 }}" {% if loop.index0 == q.correct_index %}checked{% endif %}>
+              {{ letter }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="edit-explanation-{{ q.id }}">解释</label>
+          <input type="text" id="edit-explanation-{{ q.id }}" name="explanation" class="form-input" value="{{ q.explanation or '' }}">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="edit-order-{{ q.id }}">排序序号</label>
+          <input type="number" id="edit-order-{{ q.id }}" name="order" class="form-input" value="{{ q.order }}">
+        </div>
+
+        <div class="form-group">
+          <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: 0.85rem;">
+            <input type="checkbox" name="is_published" value="true" {% if q.is_published %}checked{% endif %}>
+            已发布
+          </label>
+        </div>
+
+        <div style="display: flex; gap: var(--space-3); margin-top: var(--space-4);">
+          <button type="submit" class="btn btn--primary">保存修改</button>
+          <button type="button" class="btn btn--outline" onclick="toggleEditForm({{ q.id }})">取消</button>
+        </div>
+      </form>
+
+      <!-- 图片管理 -->
+      <div class="qm-images">
+        <div class="qm-images__title">配图管理</div>
+        {% if q.image_url %}
+        <img src="{{ q.image_url }}" alt="题目配图" class="qm-images__preview">
+        {% endif %}
+        <div class="qm-images__actions">
+          <button type="button" class="btn btn--outline btn--sm fetch-image-btn"
+                  data-id="{{ q.id }}"
+                  data-question="{{ q.question }}"
+                  data-csrftoken="{{ csrftoken }}">
+            🖼️ 快速获取
+          </button>
+          <button type="button" class="btn btn--outline btn--sm browse-image-btn"
+                  data-id="{{ q.id }}"
+                  data-question="{{ q.question }}"
+                  data-csrftoken="{{ csrftoken }}">
+            🔍 浏览候选配图
+          </button>
+          <button type="button" class="btn btn--outline btn--sm fetch-option-images-btn"
+                  data-id="{{ q.id }}"
+                  data-csrftoken="{{ csrftoken }}">
+            🖼️ 快速获取选项配图
+          </button>
+          <button type="button" class="btn btn--outline btn--sm browse-option-images-btn"
+                  data-id="{{ q.id }}"
+                  data-csrftoken="{{ csrftoken }}">
+            🔍 浏览候选选项配图
+          </button>
+        </div>
+        {% set opt_images = q.option_images %}
+        {% if opt_images %}
+        <div style="margin-top: var(--space-3); display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2);">
+          {% for opt in options %}
+          <div style="text-align: center;">
+            {% if opt_images[loop.index0] %}
+            <img src="{{ opt_images[loop.index0] }}" alt="{{ opt }}"
+                 style="width: 100%; max-height: 70px; object-fit: cover; border-radius: var(--radius-sm);">
+            {% endif %}
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: var(--space-1); font-family: var(--font-serif); font-style: italic;">
+              {{ ['A', 'B', 'C', 'D'][loop.index0] }}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="empty-state">
+  <div class="empty-state__icon">❓</div>
+  <h2 class="empty-state__title">还没有题目</h2>
+  <p class="empty-state__text">添加一些关于你的问题，让访客更了解你。</p>
+</div>
+{% endif %}
+
+<!-- 图片选择器 Modal -->
+<div id="imagePickerModal" class="qm-picker">
+  <div class="qm-picker__content">
+    <div class="qm-picker__header">
+      <h3 id="imagePickerTitle" class="qm-picker__title">浏览候选配图</h3>
+      <button class="qm-picker__close" onclick="closeImagePicker()">&times;</button>
+    </div>
+    <div id="imagePickerBody" class="qm-picker__body">
+      <!-- 由 JS 动态渲染 -->
+    </div>
+    <div class="qm-picker__footer">
+      <button class="btn btn--outline" onclick="closeImagePicker()">取消</button>
+      <button id="imagePickerConfirm" class="btn btn--primary" onclick="confirmImagePicker()" disabled>确认选择</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== 表单显隐 ====================
+function toggleAddForm() {
+  var form = document.getElementById('add-form');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleEditForm(id) {
+  var form = document.getElementById('edit-form-' + id);
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+// ==================== 发布切换 ====================
+document.querySelectorAll('.toggle-publish-form').forEach(function(form) {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btn = this.querySelector('button[type="submit"]');
+    var card = this.closest('.qm-card');
+    var badge = card.querySelector('.badge');
+    var formData = new FormData(this);
+    fetch(this.action, {
+      method: 'POST',
+      body: formData,
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.is_published) {
+        btn.textContent = '下架';
+        badge.textContent = '已发布';
+        badge.className = 'badge badge--published';
+      } else {
+        btn.textContent = '发布';
+        badge.textContent = '草稿';
+        badge.className = 'badge badge--draft';
+      }
+    })
+    .catch(function() { alert('操作失败'); });
+  });
+});
+
+// ==================== 自动获取图片 ====================
+document.querySelectorAll('.fetch-image-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var id = this.dataset.id;
+    var csrftoken = this.dataset.csrftoken;
+    var originalText = this.textContent;
+    this.textContent = '获取中...';
+    this.disabled = true;
+
+    var formData = new FormData();
+    formData.append('csrftoken', csrftoken);
+
+    fetch('/manage/quiz/questions/' + id + '/fetch-image', {
+      method: 'POST',
+      body: formData,
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.image_url) {
+        location.reload();
+      } else {
+        alert(data.error || '获取失败，请检查 Unsplash Access Key 配置');
+      }
+    })
+    .catch(function() { alert('网络错误'); })
+    .finally(function() {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    });
+  });
+});
+
+document.querySelectorAll('.fetch-option-images-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var id = this.dataset.id;
+    var csrftoken = this.dataset.csrftoken;
+    var originalText = this.textContent;
+    this.textContent = '获取中...';
+    this.disabled = true;
+
+    var formData = new FormData();
+    formData.append('csrftoken', csrftoken);
+
+    fetch('/manage/quiz/questions/' + id + '/fetch-option-images', {
+      method: 'POST',
+      body: formData,
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.option_images) {
+        location.reload();
+      } else {
+        alert(data.error || '获取失败，请检查 Unsplash Access Key 配置');
+      }
+    })
+    .catch(function() { alert('网络错误'); })
+    .finally(function() {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    });
+  });
+});
+
+// ==================== 图片选择器状态 ====================
+var pickerState = {
+  mode: null,
+  questionId: null,
+  csrftoken: null,
+  selectedUrl: null,
+  selectedUrls: {},
+  candidates: [],
+  optionCandidates: [],
+};
+
+function openImagePicker(mode, questionId, csrftoken) {
+  pickerState.mode = mode;
+  pickerState.questionId = questionId;
+  pickerState.csrftoken = csrftoken;
+  pickerState.selectedUrl = null;
+  pickerState.selectedUrls = {};
+  document.getElementById('imagePickerConfirm').disabled = true;
+
+  var title = mode === 'question' ? '选择题目配图' : '选择选项配图';
+  document.getElementById('imagePickerTitle').textContent = title;
+  document.getElementById('imagePickerBody').innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:var(--space-8);">加载中...</p>';
+  document.getElementById('imagePickerModal').classList.add('qm-picker--open');
+
+  if (mode === 'question') {
+    loadQuestionCandidates(questionId, csrftoken);
+  } else {
+    loadOptionCandidates(questionId, csrftoken);
+  }
+}
+
+function closeImagePicker() {
+  document.getElementById('imagePickerModal').classList.remove('qm-picker--open');
+  pickerState.mode = null;
+  pickerState.selectedUrl = null;
+  pickerState.selectedUrls = {};
+  pickerState.candidates = [];
+  pickerState.optionCandidates = [];
+}
+
+function loadQuestionCandidates(questionId, csrftoken) {
+  var formData = new FormData();
+  formData.append('csrftoken', csrftoken);
+
+  fetch('/manage/quiz/questions/' + questionId + '/fetch-image-candidates', {
+    method: 'POST',
+    body: formData,
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.error) {
+      document.getElementById('imagePickerBody').innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:var(--space-8);">' + data.error + '</p>';
+      return;
+    }
+    pickerState.candidates = data;
+    renderQuestionCandidates(data);
+  })
+  .catch(function() {
+    document.getElementById('imagePickerBody').innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:var(--space-8);">加载失败，请重试</p>';
+  });
+}
+
+function renderQuestionCandidates(candidates) {
+  if (!candidates || candidates.length === 0) {
+    document.getElementById('imagePickerBody').innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:var(--space-8);">未找到候选图片</p>';
+    return;
+  }
+
+  var html = '<div class="qm-picker__grid">';
+  candidates.forEach(function(c, index) {
+    html += '<div class="qm-picker__item" data-index="' + index + '" onclick="selectQuestionCandidate(' + index + ')">';
+    html += '<img src="' + c.thumb_url + '" alt="候选 ' + (index + 1) + '" loading="lazy">';
+    html += '<div class="qm-picker__item-meta">❤ ' + c.likes + ' · ' + c.author + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  document.getElementById('imagePickerBody').innerHTML = html;
+}
+
+function selectQuestionCandidate(index) {
+  pickerState.selectedUrl = pickerState.candidates[index].url;
+  document.getElementById('imagePickerConfirm').disabled = false;
+  document.querySelectorAll('.qm-picker__item').forEach(function(el) {
+    el.classList.remove('qm-picker__item--selected');
+  });
+  document.querySelector('.qm-picker__item[data-index="' + index + '"]').classList.add('qm-picker__item--selected');
+}
+
+function loadOptionCandidates(questionId, csrftoken) {
+  var formData = new FormData();
+  formData.append('csrftoken', csrftoken);
+
+  fetch('/manage/quiz/questions/' + questionId + '/fetch-option-candidates', {
+    method: 'POST',
+    body: formData,
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.error) {
+      document.getElementById('imagePickerBody').innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:var(--space-8);">' + data.error + '</p>';
+      return;
+    }
+    pickerState.optionCandidates = data;
+    renderOptionCandidates(data);
+  })
+  .catch(function() {
+    document.getElementById('imagePickerBody').innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:var(--space-8);">加载失败，请重试</p>';
+  });
+}
+
+function renderOptionCandidates(optionCandidates) {
+  if (!optionCandidates || optionCandidates.length === 0) {
+    document.getElementById('imagePickerBody').innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:var(--space-8);">未找到候选图片</p>';
+    return;
+  }
+
+  var labels = ['A', 'B', 'C', 'D'];
+  var html = '';
+  optionCandidates.forEach(function(candidates, optIndex) {
+    html += '<div class="qm-picker__option-row">';
+    html += '<div class="qm-picker__option-label">选项 ' + labels[optIndex] + '</div>';
+    html += '<div class="qm-picker__option-grid">';
+    candidates.forEach(function(c, candIndex) {
+      html += '<div class="qm-picker__item" data-opt="' + optIndex + '" data-cand="' + candIndex + '" onclick="selectOptionCandidate(' + optIndex + ',' + candIndex + ')">';
+      html += '<img src="' + c.thumb_url + '" alt="候选 ' + (candIndex + 1) + '" loading="lazy">';
+      html += '<div class="qm-picker__item-meta">❤ ' + c.likes + '</div>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  });
+  document.getElementById('imagePickerBody').innerHTML = html;
+}
+
+function selectOptionCandidate(optIndex, candIndex) {
+  pickerState.selectedUrls[optIndex] = pickerState.optionCandidates[optIndex][candIndex].url;
+
+  var allSelected = true;
+  for (var i = 0; i < 4; i++) {
+    if (!pickerState.selectedUrls[i]) {
+      allSelected = false;
+      break;
+    }
+  }
+  document.getElementById('imagePickerConfirm').disabled = !allSelected;
+
+  document.querySelectorAll('.qm-picker__item[data-opt="' + optIndex + '"]').forEach(function(el) {
+    el.classList.remove('qm-picker__item--selected');
+  });
+  document.querySelector('.qm-picker__item[data-opt="' + optIndex + '"][data-cand="' + candIndex + '"]').classList.add('qm-picker__item--selected');
+}
+
+function confirmImagePicker() {
+  var confirmBtn = document.getElementById('imagePickerConfirm');
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = '保存中...';
+
+  if (pickerState.mode === 'question') {
+    fetch('/manage/quiz/questions/' + pickerState.questionId + '/select-image', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': pickerState.csrftoken,
+      },
+      body: JSON.stringify({ image_url: pickerState.selectedUrl }),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.image_url) {
+        location.reload();
+      } else {
+        alert(data.error || '保存失败');
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = '确认选择';
+      }
+    })
+    .catch(function() {
+      alert('网络错误');
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = '确认选择';
+    });
+
+  } else if (pickerState.mode === 'option') {
+    var urls = [];
+    for (var i = 0; i < 4; i++) {
+      urls.push(pickerState.selectedUrls[i] || null);
+    }
+
+    fetch('/manage/quiz/questions/' + pickerState.questionId + '/select-option-images', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': pickerState.csrftoken,
+      },
+      body: JSON.stringify({ option_images: urls }),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.option_images) {
+        location.reload();
+      } else {
+        alert(data.error || '保存失败');
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = '确认选择';
+      }
+    })
+    .catch(function() {
+      alert('网络错误');
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = '确认选择';
+    });
+  }
+}
+
+// ==================== 浏览候选按钮 ====================
+document.querySelectorAll('.browse-image-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    openImagePicker('question', this.dataset.id, this.dataset.csrftoken);
+  });
+});
+
+document.querySelectorAll('.browse-option-images-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    openImagePicker('option', this.dataset.id, this.dataset.csrftoken);
+  });
+});
+</script>
+{% endblock %}

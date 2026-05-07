@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - {{ site_title }}{% endblock %}
+
+{% block content %}
+<!-- ====== Hero 区域 ====== -->
+<div class="home-hero">
+  <div class="home-hero__info">
+    <div class="home-hero__en">— Welcome</div>
+    <h1 class="home-hero__name">{{ site_author }}</h1>
+    <p class="home-hero__desc">
+      {% if about_me %}
+        {{ about_me }}
+      {% else %}
+        欢迎来到我的个人空间
+      {% endif %}
+    </p>
+    <div class="home-hero__actions">
+      <a href="/projects" class="btn btn--primary">作品集</a>
+      <a href="/about" class="btn btn--outline">关于我</a>
+    </div>
+  </div>
+  <div class="hero-carousel">
+    <div class="hero-carousel__track">
+      {% if photo_url %}
+      <div class="hero-carousel__slide"><img src="{{ photo_url }}" alt="{{ site_author }}"></div>
+      {% else %}
+      <div class="hero-carousel__slide">🌸</div>
+      {% endif %}
+      <div class="hero-carousel__slide">🌅</div>
+      <div class="hero-carousel__slide">🍁</div>
+      <div class="hero-carousel__slide">🌿</div>
+    </div>
+    <div class="hero-carousel__dots">
+      <span class="hero-carousel__dot"></span>
+      <span class="hero-carousel__dot"></span>
+      <span class="hero-carousel__dot"></span>
+      <span class="hero-carousel__dot"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ====== Bento Grid ====== -->
+<div class="bento-grid">
+
+  <!-- 关于卡片（wide） -->
+  <div class="bento-card bento-card--wide page-enter-delay">
+    <div class="bento-card__label">About</div>
+    {% if about_me %}
+    <p class="bento-card__text">{{ about_me }}</p>
+    {% else %}
+    <p class="bento-card__text">这里是一段简短自我介绍。可以写写职业、爱好、或者任何想分享的事情。</p>
+    {% endif %}
+    <div class="bento-card__footer">
+      <a href="/about" class="btn btn--ghost btn--sm">了解更多 →</a>
+    </div>
+  </div>
+
+  <!-- 统计数据卡 -->
+  <div class="bento-card page-enter-delay">
+    <div class="bento-card__label">Stats</div>
+    <div class="bento-card__stats">
+      <div class="stat-item">
+        <span class="stat-item__value">{{ diary_count }}</span>
+        <span class="stat-item__label">公开日记</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-item__value">{{ project_count }}</span>
+        <span class="stat-item__label">项目作品</span>
+      </div>
+      {% if quiz_best is not none %}
+      <div class="stat-item">
+        <span class="stat-item__value">{{ quiz_best }}%</span>
+        <span class="stat-item__label">测验最高分</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- 最新日记（wide） -->
+  <div class="bento-card bento-card--wide page-enter-delay2">
+    <div class="bento-card__label">Recent Writings</div>
+    {% if latest_diaries %}
+      {% for entry in latest_diaries %}
+      <div class="diary-mini">
+        <div class="diary-mini__title">
+          <a href="/diaries/{{ entry.id }}">{{ entry.title }}</a>
+        </div>
+        <div class="diary-mini__date">{{ entry.created_at.strftime('%Y.%m.%d') }}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="bento-card__text">还没有日记，等待第一篇故事...</p>
+    {% endif %}
+    <div class="bento-card__footer">
+      <a href="/diaries" class="btn btn--ghost btn--sm">查看全部 →</a>
+    </div>
+  </div>
+
+  <!-- 测验入口卡 -->
+  <div class="bento-card page-enter-delay2">
+    <div class="bento-card__label">Quiz</div>
+    {% if quiz_count > 0 %}
+    <p class="bento-card__text">{{ quiz_count }} 道关于我的问题，试试你能答对多少？</p>
+    <div class="bento-card__footer">
+      <a href="/quiz" class="btn btn--primary btn--sm">开始测验</a>
+    </div>
+    {% else %}
+    <p class="bento-card__text">测验正在准备中，敬请期待...</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}关于我 - {{ site_title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header__en">— About</div>
+  <h1 class="page-header__title">关于我</h1>
+</div>
+
+<div class="about-wrapper">
+  <div class="about-content">
+    <p>{{ about_me or '还没有填写介绍内容。' }}</p>
+    <div style="margin-top:var(--space-10);padding-top:var(--space-8);border-top:1px solid var(--border-light)">
+      <div style="display:flex;gap:var(--space-6);flex-wrap:wrap">
+        <div>
+          <div style="font-size:0.7rem;color:var(--text-muted);letter-spacing:0.1em;margin-bottom:var(--space-2)">Email</div>
+          {% if contact_email %}
+          <a href="mailto:{{ contact_email }}" style="color:var(--accent);font-size:0.9rem">{{ contact_email }}</a>
+          {% else %}
+          <span style="color:var(--text-muted);font-size:0.9rem">（在站点设置中配置）</span>
+          {% endif %}
+        </div>
+        {% if contact_github %}
+        <div>
+          <div style="font-size:0.7rem;color:var(--text-muted);letter-spacing:0.1em;margin-bottom:var(--space-2)">GitHub</div>
+          <a href="https://github.com/{{ contact_github }}" target="_blank" rel="noopener" style="color:var(--accent);font-size:0.9rem">@{{ contact_github }}</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

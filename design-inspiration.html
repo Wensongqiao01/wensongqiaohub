@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人主页设计灵感库</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f0eb;
+    --text: #1a1a2e;
+    --text-light: #6b6b80;
+    --card-bg: #ffffff;
+    --radius: 16px;
+    --shadow: 0 2px 20px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: 'Noto Sans SC', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 60px 20px 40px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff;
+  }
+  .header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
+  .header p { font-size: 1.1rem; opacity: 0.8; max-width: 600px; margin: 0 auto; }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+
+  /* Section Title */
+  .section-title {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .section-title h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .section-title p {
+    color: var(--text-light);
+    font-size: 1rem;
+  }
+
+  /* Style Cards Grid */
+  .styles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 30px;
+    margin-bottom: 60px;
+  }
+
+  .style-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .style-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+  }
+
+  .style-preview {
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .style-preview .label {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    backdrop-filter: blur(4px);
+  }
+
+  .style-body {
+    padding: 24px;
+  }
+  .style-body h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .style-body p {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    line-height: 1.7;
+  }
+
+  .palette {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .palette .color {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,0,0,0.08);
+    flex-shrink: 0;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tags span {
+    background: var(--bg);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: var(--text-light);
+  }
+
+  /* ===== Style Preview Backgrounds ===== */
+
+  /* 1. 极简干净 */
+  .preview-minimal {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  }
+  .preview-minimal .demo-card {
+    width: 80%;
+    height: 70%;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 8px;
+  }
+  .preview-minimal .demo-card .bar { height: 6px; background: #e9ecef; border-radius: 3px; }
+  .preview-minimal .demo-card .bar:nth-child(1) { width: 40%; height: 16px; background: #212529; border-radius: 4px; }
+  .preview-minimal .demo-card .bar:nth-child(2) { width: 70%; }
+  .preview-minimal .demo-card .bar:nth-child(3) { width: 55%; }
+  .preview-minimal .demo-card .bar:nth-child(4) { width: 60%; height: 40px; background: #dee2e6; margin-top: auto; border-radius: 8px; }
+
+  /* 2. 杂志编辑 */
+  .preview-magazine {
+    background: #1a1a1a;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 20px;
+    gap: 12px;
+  }
+  .preview-magazine .block {
+    background: #2a2a2a;
+    border-radius: 8px;
+  }
+  .preview-magazine .block:first-child {
+    grid-column: 1 / -1;
+    height: 50%;
+    background: linear-gradient(135deg, #c9714e, #d4a76a);
+    display: flex;
+    align-items: flex-end;
+    padding: 16px;
+  }
+  .preview-magazine .block:first-child::after {
+    content: 'MAGAZINE';
+    color: #fff;
+    font-weight: 900;
+    font-size: 1.4rem;
+    letter-spacing: 4px;
+    font-family: Inter, sans-serif;
+  }
+  .preview-magazine .block:not(:first-child) { height: 100%; }
+
+  /* 3. 毛玻璃 */
+  .preview-glass {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+  }
+  .preview-glass .glass-card {
+    width: 75%;
+    height: 65%;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 8px;
+  }
+  .preview-glass .glass-card .bar { height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; }
+  .preview-glass .glass-card .bar:nth-child(1) { width: 50%; height: 14px; background: rgba(255,255,255,0.4); border-radius: 4px; }
+  .preview-glass .glass-card .bar:nth-child(2) { width: 80%; }
+  .preview-glass .glass-card .bar:nth-child(3) { width: 60%; }
+  .preview-glass .glass-card .bar:nth-child(4) { width: 70%; height: 40px; background: rgba(255,255,255,0.1); margin-top: auto; border-radius: 8px; }
+
+  /* 4. 暗色调现代 */
+  .preview-dark {
+    background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+    position: relative;
+  }
+  .preview-dark::before {
+    content: '';
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(99,102,241,0.15), transparent);
+    top: -50px;
+    right: -50px;
+  }
+  .preview-dark .grid-demo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 80%;
+    height: 70%;
+  }
+  .preview-dark .grid-demo div {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+  }
+  .preview-dark .grid-demo div:first-child { grid-column: 1 / -1; background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.2)); }
+
+  /* 5. 新粗野主义 */
+  .preview-brutal {
+    background: #ffedd5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px;
+    flex-wrap: wrap;
+  }
+  .preview-brutal .b-block {
+    background: #fff;
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 6px 6px 0 #000;
+    padding: 12px;
+    font-family: Inter, monospace;
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+  }
+  .preview-brutal .b-block.large { padding: 24px 16px; font-size: 1.2rem; width: 100%; text-align: center; background: #f97316; color: #fff; }
+
+  /* 6. 日式美学 */
+  .preview-japanese {
+    background: #faf6f0;
+    position: relative;
+  }
+  .preview-japanese::after {
+    content: '和';
+    position: absolute;
+    font-size: 8rem;
+    font-weight: 100;
+    color: rgba(0,0,0,0.03);
+    bottom: -10px;
+    right: 10px;
+  }
+  .preview-japanese .j-card {
+    width: 75%;
+    height: 65%;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 10px rgba(0,0,0,0.04);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid #e8e0d4;
+  }
+  .preview-japanese .j-card .bar { height: 4px; background: #e8e0d4; border-radius: 2px; }
+  .preview-japanese .j-card .bar:nth-child(1) { width: 35%; height: 14px; background: #2d2d2d; }
+  .preview-japanese .j-card .bar:nth-child(2) { width: 65%; }
+  .preview-japanese .j-card .bar:nth-child(4) { width: 50%; height: 50px; background: #f0ebe3; margin-top: auto; }
+
+  /* 7. 复古温暖（现有风格升级） */
+  .preview-warm {
+    background: linear-gradient(180deg, #f7f3ee, #f0e6d8);
+  }
+  .preview-warm .w-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    width: 80%;
+    height: 70%;
+  }
+  .preview-warm .w-grid div {
+    background: rgba(201,113,78,0.08);
+    border-radius: 8px;
+    border: 1px solid rgba(201,113,78,0.12);
+  }
+  .preview-warm .w-grid div:first-child {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, rgba(201,113,78,0.12), rgba(212,167,106,0.12));
+  }
+
+  /* 8. 液态玻璃金属 */
+  .preview-liquid {
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  }
+  .preview-liquid .l-card {
+    width: 75%;
+    height: 65%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .preview-liquid .l-card .bar { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; }
+  .preview-liquid .l-card .bar:nth-child(1) { width: 40%; height: 14px; background: rgba(255,255,255,0.2); }
+  .preview-liquid .l-card .bar:nth-child(4) { width: 70%; height: 40px; background: linear-gradient(90deg, rgba(99,102,241,0.3), rgba(139,92,246,0.3)); margin-top: auto; border-radius: 8px; }
+
+  /* Comparison Section */
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 60px;
+  }
+  .comparison-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 32px;
+    box-shadow: var(--shadow);
+  }
+  .comparison-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--bg);
+  }
+  .comparison-card ul {
+    list-style: none;
+  }
+  .comparison-card li {
+    padding: 8px 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-light);
+  }
+  .comparison-card li::before {
+    content: '→ ';
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* Color Palettes */
+  .palettes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 60px;
+  }
+  .palette-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .palette-card .colors {
+    display: flex;
+    height: 100px;
+  }
+  .palette-card .colors div {
+    flex: 1;
+    position: relative;
+  }
+  .palette-card .colors div::after {
+    content: attr(data-color);
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    font-family: monospace;
+    color: rgba(255,255,255,0.8);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .palette-card .info {
+    padding: 16px 20px;
+  }
+  .palette-card .info h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+  .palette-card .info p { font-size: 0.8rem; color: var(--text-light); }
+
+  /* Layout Examples */
+  .layouts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 60px;
+  }
+  .layout-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .layout-card .schema {
+    height: 200px;
+    padding: 20px;
+    background: #faf6f2;
+  }
+  .layout-card .schema .layout-grid {
+    display: grid;
+    gap: 6px;
+    height: 100%;
+  }
+  .layout-card .schema .layout-grid div {
+    background: rgba(201,113,78,0.1);
+    border: 1px dashed rgba(201,113,78,0.2);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    color: #c9714e;
+    font-weight: 500;
+  }
+  .layout-card .body {
+    padding: 20px;
+  }
+  .layout-card .body h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 6px; }
+  .layout-card .body p { font-size: 0.8rem; color: var(--text-light); line-height: 1.6; }
+
+  /* Font Showcase */
+  .fonts-section {
+    margin-bottom: 60px;
+  }
+  .fonts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+  }
+  .font-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+  .font-card .font-name {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-bottom: 4px;
+    font-family: monospace;
+  }
+  .font-card .font-demo-huge {
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+  .font-card .font-demo-body {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text-light);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .styles-grid { grid-template-columns: 1fr; }
+    .comparison { grid-template-columns: 1fr; }
+    .palettes-grid { grid-template-columns: 1fr; }
+    .layouts-grid { grid-template-columns: 1fr; }
+    .fonts-grid { grid-template-columns: 1fr; }
+    .header h1 { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🎨 个人主页设计灵感库</h1>
+  <p>浏览不同设计风格，找到你最喜欢的视觉方向。点击选择后我们可以一起制定重构计划。</p>
+</div>
+
+<div class="container">
+
+  <!-- ===== 设计风格 ===== -->
+  <div class="section-title">
+    <h2>设计风格参考</h2>
+    <p>以下 8 种风格方向，看看哪种最打动你</p>
+  </div>
+
+  <div class="styles-grid">
+
+    <!-- 1. 极简干净 -->
+    <div class="style-card" onclick="selectStyle(this, '极简干净')">
+      <div class="style-preview preview-minimal">
+        <span class="label">风格 1</span>
+        <div class="demo-card">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+      </div>
+      <div class="style-body">
+        <h3>极简干净 · Minimal</h3>
+        <p>大量留白、精致排版、克制用色。内容为王，让文字和图片自己说话。适合追求高级感和专注度的个人博客/作品集。</p>
+        <div class="palette">
+          <div class="color" style="background:#f8f9fa"></div>
+          <div class="color" style="background:#212529"></div>
+          <div class="color" style="background:#6c757d"></div>
+          <div class="color" style="background:#d63384"></div>
+        </div>
+        <div class="tags">
+          <span>留白</span>
+          <span>克制</span>
+          <span>排版</span>
+          <span>高级感</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 杂志编辑 -->
+    <div class="style-card" onclick="selectStyle(this, '杂志编辑')">
+      <div class="style-preview preview-magazine">
+        <span class="label">风格 2</span>
+        <div class="block"></div>
+        <div class="block"></div>
+        <div class="block"></div>
+      </div>
+      <div class="style-body">
+        <h3>杂志编辑 · Editorial</h3>
+        <p>大标题、大字重对比、图文混排、有层次感的版面设计。像翻阅一本精美的独立杂志，适合内容丰富的个人主页。</p>
+        <div class="palette">
+          <div class="color" style="background:#1a1a1a"></div>
+          <div class="color" style="background:#ffffff"></div>
+          <div class="color" style="background:#c9714e"></div>
+          <div class="color" style="background:#d4a76a"></div>
+        </div>
+        <div class="tags">
+          <span>大字重</span>
+          <span>图文混排</span>
+          <span>版面</span>
+          <span>叙事感</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 毛玻璃 -->
+    <div class="style-card" onclick="selectStyle(this, '毛玻璃')">
+      <div class="style-preview preview-glass">
+        <span class="label">风格 3</span>
+        <div class="glass-card">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+      </div>
+      <div class="style-body">
+        <h3>新毛玻璃 · Glassmorphism</h3>
+        <p>柔和光影、背景模糊、卡片悬浮叠加。创造深邃的视觉层次和空间感，让页面看起来立体而精致。</p>
+        <div class="palette">
+          <div class="color" style="background:#667eea"></div>
+          <div class="color" style="background:#764ba2"></div>
+          <div class="color" style="background:rgba(255,255,255,0.2)"></div>
+          <div class="color" style="background:#ffffff"></div>
+        </div>
+        <div class="tags">
+          <span>毛玻璃</span>
+          <span>光晕</span>
+          <span>立体感</span>
+          <span>现代</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 暗色调 -->
+    <div class="style-card" onclick="selectStyle(this, '暗色调现代')">
+      <div class="style-preview preview-dark">
+        <span class="label">风格 4</span>
+        <div class="grid-demo">
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+      <div class="style-body">
+        <h3>暗色调现代 · Dark Mode</h3>
+        <p>深色背景、发光点缀、微妙动效。科技感和沉浸感强，特别适合展示设计/开发类作品，夜间浏览体验极佳。</p>
+        <div class="palette">
+          <div class="color" style="background:#0a0a0f"></div>
+          <div class="color" style="background:#1a1a2e"></div>
+          <div class="color" style="background:#6366f1"></div>
+          <div class="color" style="background:#e2e8f0"></div>
+        </div>
+        <div class="tags">
+          <span>暗色</span>
+          <span>科技感</span>
+          <span>霓虹</span>
+          <span>沉浸</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 新粗野主义 -->
+    <div class="style-card" onclick="selectStyle(this, '新粗野主义')">
+      <div class="style-preview preview-brutal">
+        <span class="label">风格 5</span>
+        <div class="b-block large">HELLO</div>
+        <div class="b-block">about</div>
+        <div class="b-block">work</div>
+        <div class="b-block">contact</div>
+      </div>
+      <div class="style-body">
+        <h3>新粗野主义 · Neo-Brutalism</h3>
+        <p>粗边框、醒目的阴影、大胆的色彩、无惧"丑"的态度。个性极强，让人过目不忘，适合想要与众不同的个人品牌。</p>
+        <div class="palette">
+          <div class="color" style="background:#ffedd5"></div>
+          <div class="color" style="background:#000000"></div>
+          <div class="color" style="background:#f97316"></div>
+          <div class="color" style="background:#ffffff"></div>
+        </div>
+        <div class="tags">
+          <span>大胆</span>
+          <span>个性</span>
+          <span>粗边框</span>
+          <span>记忆点</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. 日式美学 -->
+    <div class="style-card" onclick="selectStyle(this, '日式美学')">
+      <div class="style-preview preview-japanese">
+        <span class="label">风格 6</span>
+        <div class="j-card">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+      </div>
+      <div class="style-body">
+        <h3>日式美学 · Wabi-Sabi</h3>
+        <p>东方韵味、留白意境、温润质感。讲究不对称之美和材质的真实感，传达宁静、内敛的气质。</p>
+        <div class="palette">
+          <div class="color" style="background:#faf6f0"></div>
+          <div class="color" style="background:#2d2d2d"></div>
+          <div class="color" style="background:#c9a96e"></div>
+          <div class="color" style="background:#8b7355"></div>
+        </div>
+        <div class="tags">
+          <span>留白</span>
+          <span>禅意</span>
+          <span>温润</span>
+          <span>侘寂</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. 复古温暖（现有升级） -->
+    <div class="style-card" onclick="selectStyle(this, '复古温暖升级')">
+      <div class="style-preview preview-warm">
+        <span class="label">风格 7</span>
+        <div class="w-grid">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+      <div class="style-body">
+        <h3>复古温暖 · 现有风格升级</h3>
+        <p>在现有暖色调基础上打磨细节：更精致的卡片、更考究的排版、更丰富的微交互与动效。保留熟悉的温暖感，但大幅提升质感。</p>
+        <div class="palette">
+          <div class="color" style="background:#f7f3ee"></div>
+          <div class="color" style="background:#c9714e"></div>
+          <div class="color" style="background:#d4a76a"></div>
+          <div class="color" style="background:#2c2822"></div>
+        </div>
+        <div class="tags">
+          <span>保留现有</span>
+          <span>质感升级</span>
+          <span>微交互</span>
+          <span>动效</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. 液态玻璃金属 -->
+    <div class="style-card" onclick="selectStyle(this, '液态玻璃金属')">
+      <div class="style-preview preview-liquid">
+        <span class="label">风格 8</span>
+        <div class="l-card">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+      </div>
+      <div class="style-body">
+        <h3>液态玻璃金属 · Liquid Glass</h3>
+        <p>光泽质感、深邃光影、反射效果。像高级产品发布会页面，充满奢华感和未来感。适合设计/创意类个人品牌。</p>
+        <div class="palette">
+          <div class="color" style="background:#0f0c29"></div>
+          <div class="color" style="background:#6366f1"></div>
+          <div class="color" style="background:rgba(255,255,255,0.1)"></div>
+          <div class="color" style="background:#e2e8f0"></div>
+        </div>
+        <div class="tags">
+          <span>光泽</span>
+          <span>奢华</span>
+          <span>光影</span>
+          <span>高级</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== 配色方案 ===== -->
+  <div class="section-title">
+    <h2>配色方案推荐</h2>
+    <p>几组经过验证的高质量配色，可以直接用</p>
+  </div>
+
+  <div class="palettes-grid">
+    <div class="palette-card">
+      <div class="colors">
+        <div style="background:#2d2d2d" data-color="#2d2d2d"></div>
+        <div style="background:#f5f0eb" data-color="#f5f0eb"></div>
+        <div style="background:#c9714e" data-color="#c9714e"></div>
+        <div style="background:#d4a76a" data-color="#d4a76a"></div>
+        <div style="background:#8fa89b" data-color="#8fa89b"></div>
+      </div>
+      <div class="info">
+        <h4>温暖大地</h4>
+        <p>温暖、亲切、自然。适合博客和个人日记类网站。</p>
+      </div>
+    </div>
+
+    <div class="palette-card">
+      <div class="colors">
+        <div style="background:#0f172a" data-color="#0f172a"></div>
+        <div style="background:#e2e8f0" data-color="#e2e8f0"></div>
+        <div style="background:#6366f1" data-color="#6366f1"></div>
+        <div style="background:#f59e0b" data-color="#f59e0b"></div>
+        <div style="background:#10b981" data-color="#10b981"></div>
+      </div>
+      <div class="info">
+        <h4>深空现代</h4>
+        <p>科技感、专业、现代。适合技术博客和作品集。</p>
+      </div>
+    </div>
+
+    <div class="palette-card">
+      <div class="colors">
+        <div style="background:#faf6f0" data-color="#faf6f0"></div>
+        <div style="background:#2d2d2d" data-color="#2d2d2d"></div>
+        <div style="background:#c9a96e" data-color="#c9a96e"></div>
+        <div style="background:#8b7355" data-color="#8b7355"></div>
+        <div style="background:#d4c5a9" data-color="#d4c5a9"></div>
+      </div>
+      <div class="info">
+        <h4>侘寂和风</h4>
+        <p>安静、克制、有底蕴。适合文字类和艺术类内容。</p>
+      </div>
+    </div>
+
+    <div class="palette-card">
+      <div class="colors">
+        <div style="background:#ffffff" data-color="#ffffff"></div>
+        <div style="background:#f3f4f6" data-color="#f3f4f6"></div>
+        <div style="background:#111827" data-color="#111827"></div>
+        <div style="background:#3b82f6" data-color="#3b82f6"></div>
+        <div style="background:#8b5cf6" data-color="#8b5cf6"></div>
+      </div>
+      <div class="info">
+        <h4>极简专业</h4>
+        <p>干净、清晰、高级。适合所有类型的个人网站。</p>
+      </div>
+    </div>
+
+    <div class="palette-card">
+      <div class="colors">
+        <div style="background:#1a1a2e" data-color="#1a1a2e"></div>
+        <div style="background:#16213e" data-color="#16213e"></div>
+        <div style="background:#e94560" data-color="#e94560"></div>
+        <div style="background:#0f3460" data-color="#0f3460"></div>
+        <div style="background:#ffffff" data-color="#ffffff"></div>
+      </div>
+      <div class="info">
+        <h4>暗夜霓虹</h4>
+        <p>深邃、激情、视觉冲击。适合创意设计类作品集。</p>
+      </div>
+    </div>
+
+    <div class="palette-card">
+      <div class="colors">
+        <div style="background:#fdf2e9" data-color="#fdf2e9"></div>
+        <div style="background:#000000" data-color="#000000"></div>
+        <div style="background:#e67e22" data-color="#e67e22"></div>
+        <div style="background:#2ecc71" data-color="#2ecc71"></div>
+        <div style="background:#ffffff" data-color="#ffffff"></div>
+      </div>
+      <div class="info">
+        <h4>新粗野主义</h4>
+        <p>大胆、高对比、有态度。适合想与众不同的个人品牌。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 布局方案 ===== -->
+  <div class="section-title">
+    <h2>布局方案参考</h2>
+    <p>首页的不同布局方式，每种都有不同的视觉节奏</p>
+  </div>
+
+  <div class="layouts-grid">
+    <div class="layout-card">
+      <div class="schema">
+        <div class="layout-grid" style="grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr;">
+          <div style="grid-row:1/3">Hero</div>
+          <div style="grid-column:2/4">About</div>
+          <div>Stats</div>
+          <div>Skills</div>
+          <div>Recent</div>
+          <div style="grid-column:1/4">Footer</div>
+        </div>
+      </div>
+      <div class="body">
+        <h4>Bento Grid（当前风格）</h4>
+        <p>模块化卡片式布局，大小不一形成节奏感。适合内容类型丰富的首页。</p>
+      </div>
+    </div>
+
+    <div class="layout-card">
+      <div class="schema">
+        <div class="layout-grid" style="grid-template-columns: 1fr; grid-template-rows: auto;">
+          <div style="height:40%; background: rgba(201,113,78,0.15);">全屏 Hero</div>
+          <div style="height:25%;">正文区</div>
+          <div style="height:25%;">项目展示</div>
+          <div style="height:10%;">Footer</div>
+        </div>
+      </div>
+      <div class="body">
+        <h4>全屏滚动叙事</h4>
+        <p>每个section占满一屏，滚动如翻页。适合以故事线展开的个人介绍。</p>
+      </div>
+    </div>
+
+    <div class="layout-card">
+      <div class="schema">
+        <div class="layout-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+          <div style="grid-column:1/3; grid-row:1/3; background: rgba(201,113,78,0.15);">主内容</div>
+          <div style="grid-row:1/2">侧栏1</div>
+          <div style="grid-row:2/3">侧栏2</div>
+          <div style="grid-column:1/4">底部导航</div>
+        </div>
+      </div>
+      <div class="body">
+        <h4>杂志双栏</h4>
+        <p>主栏+侧栏的不对称布局，像杂志版面。适合内容量大的个人站。</p>
+      </div>
+    </div>
+
+    <div class="layout-card">
+      <div class="schema">
+        <div class="layout-grid" style="grid-template-columns: 60px 1fr; grid-template-rows: 1fr;">
+          <div style="background:rgba(201,113,78,0.15); border-radius:4px;">侧栏</div>
+          <div style="display:flex; flex-direction:column; gap:6px; padding:6px; border:1px dashed rgba(201,113,78,0.2); border-radius:4px;">
+            <div style="height:25%;">Hero</div>
+            <div style="height:50%;">Content</div>
+            <div style="height:25%;">Footer</div>
+          </div>
+        </div>
+      </div>
+      <div class="body">
+        <h4>侧边栏导航</h4>
+        <p>固定左侧导航，右侧为滚动内容。导航始终可见，结构清晰。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 字体组合 ===== -->
+  <div class="section-title">
+    <h2>字体搭配推荐</h2>
+    <p>好的字体组合能极大提升页面质感</p>
+  </div>
+
+  <div class="fonts-section">
+    <div class="fonts-grid">
+      <div class="font-card">
+        <div class="font-name">标题: Inter / 正文: Noto Sans SC</div>
+        <div class="font-demo-huge" style="font-family:Inter, sans-serif; font-weight:800;">Hello World</div>
+        <div class="font-demo-body" style="font-family:'Noto Sans SC', sans-serif;">沉稳、现代、专业的组合。Inter 的数字和英文极佳，搭配 Noto Sans SC 的中文可读性，适合技术类个人主页。</div>
+      </div>
+
+      <div class="font-card">
+        <div class="font-name">标题: Playfair Display / 正文: Noto Sans SC</div>
+        <div class="font-demo-huge" style="font-family:'Playfair Display', Georgia, serif; font-weight:700; font-style:italic;">Hello World</div>
+        <div class="font-demo-body" style="font-family:'Noto Sans SC', sans-serif;">优雅、文艺、有格调。衬线标题自带复古与精致感，与无衬线正文形成对比，适合杂志风和文艺气息的站点。</div>
+      </div>
+
+      <div class="font-card">
+        <div class="font-name">标题: Space Grotesk / 正文: Noto Sans SC</div>
+        <div class="font-demo-huge" style="font-family:'Space Grotesk', sans-serif; font-weight:700; letter-spacing:-1px;">Hello World</div>
+        <div class="font-demo-body" style="font-family:'Noto Sans SC', sans-serif;">科技、现代、有力度。Space Grotesk 的几何感非常适合科技/设计类个人品牌。</div>
+      </div>
+
+      <div class="font-card">
+        <div class="font-name">全部: Noto Sans SC（现有组合）</div>
+        <div class="font-demo-huge" style="font-family:'Noto Sans SC', sans-serif; font-weight:900;">你好世界</div>
+        <div class="font-demo-body" style="font-family:'Noto Sans SC', sans-serif;">简洁统一，避免过多字体带来的混乱感。通过字重（300-900）变化来实现视觉层级，安全且高效。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 选择结果 ===== -->
+  <div style="text-align:center; padding:40px; background:linear-gradient(135deg, #1a1a2e, #16213e); border-radius:16px; margin-bottom:40px;">
+    <p style="color:rgba(255,255,255,0.6); font-size:0.9rem; margin-bottom:8px;">你的选择</p>
+    <p id="selectionResult" style="color:#fff; font-size:1.3rem; font-weight:500;">点击上方的风格卡片来选择你喜欢的风格</p>
+  </div>
+
+</div>
+
+<script>
+function selectStyle(el, name) {
+  // Remove previous selection
+  document.querySelectorAll('.style-card').forEach(c => {
+    c.style.outline = 'none';
+  });
+  // Highlight selection
+  el.style.outline = '3px solid #6366f1';
+  el.style.outlineOffset = '2px';
+  // Update result
+  document.getElementById('selectionResult').textContent = '你选择了：' + name + ' ✨ 告诉我你的选择，我们一起制定重构计划！';
+}
+</script>
+
+</body>
+</html>

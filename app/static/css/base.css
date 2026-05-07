@@ -1,0 +1,203 @@
+/* ============================================================
+   基础样式 - Reset / Body / 容器 / 动画 / 排版
+   原型参考: ui-prototype.html
+   ============================================================ */
+
+/* ===== Reset ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: var(--text);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+/* ===== 选择高亮 ===== */
+::selection {
+  background: var(--accent-subtle);
+  color: var(--text);
+}
+
+/* ===== 焦点样式 ===== */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+
+/* ===== 容器 ===== */
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+/* ===== 屏幕阅读器 ===== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* ===== 页面进场动画 ===== */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.page-enter {
+  animation: fadeUp 600ms ease-out;
+}
+
+.page-enter-delay {
+  animation: fadeUp 600ms ease-out 200ms both;
+}
+
+.page-enter-delay2 {
+  animation: fadeUp 600ms ease-out 400ms both;
+}
+
+/* ===== 文章排版 (prose) ===== */
+.prose {
+  max-width: 680px;
+  line-height: 2;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.prose h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-top: var(--space-10);
+  margin-bottom: var(--space-4);
+  letter-spacing: 0.03em;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.prose h3 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-3);
+}
+
+.prose p {
+  margin-bottom: var(--space-5);
+}
+
+.prose blockquote {
+  border-left: 2px solid var(--accent);
+  padding-left: var(--space-4);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-5);
+  font-style: italic;
+}
+
+.prose code {
+  font-family: 'JetBrains Mono', 'Source Code Pro', 'Consolas', monospace;
+  font-size: 0.85em;
+  background: var(--accent-subtler);
+  padding: 0.15em 0.4em;
+  border-radius: var(--radius-sm);
+}
+
+.prose pre {
+  background: #2d2d2d;
+  color: #e0d8cc;
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  margin-bottom: var(--space-5);
+  font-size: 0.85rem;
+}
+
+.prose pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+.prose img {
+  border-radius: var(--radius-md);
+  margin: var(--space-6) auto;
+  border: 1px solid var(--border-light);
+}
+
+.prose ul,
+.prose ol {
+  margin-bottom: var(--space-5);
+  padding-left: var(--space-6);
+}
+
+.prose li {
+  margin-bottom: var(--space-2);
+}
+
+.prose strong {
+  font-weight: 600;
+}
+
+.prose a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 var(--space-4);
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 var(--space-4);
+  }
+}

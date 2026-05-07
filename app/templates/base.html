@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{{ site_description }}">
+  <title>{% block title %}{{ site_title }}{% endblock %}</title>
+  {% block head_extra %}{% endblock %}
+  <link rel="stylesheet" href="/static/css/variables.css">
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+  <link rel="stylesheet" href="/static/css/pages.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- 导航 -->
+  <nav class="nav" role="navigation" aria-label="主导航">
+    <div class="nav__inner">
+      <a href="/" class="nav__logo">渡</a>
+      <button class="nav__hamburger" aria-label="打开菜单" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 12h18M3 6h18M3 18h18"/>
+        </svg>
+      </button>
+      <ul class="nav__links">
+        <li><a href="/" class="nav__link {% if active_page == 'home' %}nav__link--active{% endif %}">首页</a></li>
+        <li><a href="/diaries" class="nav__link {% if active_page == 'diaries' %}nav__link--active{% endif %}">日记</a></li>
+        <li><a href="/projects" class="nav__link {% if active_page == 'projects' %}nav__link--active{% endif %}">作品集</a></li>
+        <li><a href="/messages" class="nav__link {% if active_page == 'messages' %}nav__link--active{% endif %}">留言板</a></li>
+        <li><a href="/quiz" class="nav__link {% if active_page == 'quiz' %}nav__link--active{% endif %}">测验</a></li>
+        <li><a href="/about" class="nav__link {% if active_page == 'about' %}nav__link--active{% endif %}">关于</a></li>
+        {% if is_local %}
+        <li class="nav__sep" role="separator"></li>
+        <li><a href="/manage/diaries" class="nav__link nav__link--manage {% if active_page == 'manage_diaries' %}nav__link--active{% endif %}">日记管理</a></li>
+        <li><a href="/manage/quiz" class="nav__link nav__link--manage {% if active_page == 'manage_quiz' %}nav__link--active{% endif %}">测验管理</a></li>
+        <li><a href="/manage/projects" class="nav__link nav__link--manage {% if active_page == 'manage_projects' %}nav__link--active{% endif %}">作品管理</a></li>
+        <li><a href="/manage/messages" class="nav__link nav__link--manage {% if active_page == 'manage_messages' %}nav__link--active{% endif %}">留言管理</a></li>
+        <li><a href="/manage/settings" class="nav__link nav__link--manage {% if active_page == 'settings' %}nav__link--active{% endif %}">设置</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+
+  <!-- 主内容 -->
+  <main class="main page-enter">
+    <div class="container">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__divider"></div>
+      <p class="footer__text">&copy; {{ current_year }} {{ site_author }}</p>
+    </div>
+  </footer>
+
+  <script src="/static/js/main.js"></script>
+</body>
+</html>

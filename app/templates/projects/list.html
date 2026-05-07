@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}作品集 - {{ site_title }}{% endblock %}
+
+{% block content %}
+<!-- 页头 -->
+<div class="page-header">
+  <div class="page-header__en">— Portfolio</div>
+  <h1 class="page-header__title">作品集</h1>
+  <p class="page-header__desc">一些我做过的项目和实验</p>
+</div>
+
+<!-- 分类筛选 -->
+<div class="cat-filters" id="cat-filters">
+  <a href="/projects"
+     class="cat-filter{% if not current_category %} cat-filter--active{% endif %}"
+     data-category="">
+    全部
+  </a>
+  {% for cat in categories %}
+  <a href="/projects?category={{ cat }}"
+     class="cat-filter{% if current_category == cat %} cat-filter--active{% endif %}"
+     data-category="{{ cat }}">
+    {% if cat == 'web' %}Web
+    {% elif cat == 'tool' %}工具
+    {% elif cat == 'design' %}设计
+    {% elif cat == 'ai' %}AI / ML
+    {% elif cat == 'mobile' %}移动端
+    {% elif cat == 'game' %}游戏
+    {% else %}其他{% endif %}
+  </a>
+  {% endfor %}
+</div>
+
+<!-- 作品列表 -->
+{% if projects %}
+<div class="projects-grid">
+  {% for project in projects %}
+  <div class="project-card"
+       data-category="{{ project.category }}"
+       data-id="{{ project.id }}">
+    <!-- 图片占位 / 封面图 -->
+    <div class="project-card__img-placeholder">
+      {% if project.image_url %}
+      <img src="{{ project.image_url }}"
+           alt="{{ project.title }}"
+           loading="lazy"
+           style="width:100%;height:100%;object-fit:cover;">
+      {% else %}
+      <span class="project-card__img-icon">
+        {% if project.category == 'web' %}&#127760;
+        {% elif project.category == 'tool' %}&#128295;
+        {% elif project.category == 'design' %}&#127912;
+        {% elif project.category == 'ai' %}&#129302;
+        {% elif project.category == 'mobile' %}&#128241;
+        {% elif project.category == 'game' %}&#127918;
+        {% else %}&#128193;
+        {% endif %}
+      </span>
+      {% endif %}
+    </div>
+
+    <!-- 卡片信息 -->
+    <div class="project-card__body">
+      <h3 class="project-card__title">{{ project.title }}</h3>
+      <p class="project-card__desc">{{ project.description }}</p>
+
+      {% if project.tags %}
+      <div class="project-card__tags">
+        {% for tag in project.tags.split(',') %}
+        <span class="tag">{{ tag.strip() }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="project-card__links">
+        {% if project.demo_url %}
+        <a href="{{ project.demo_url }}"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="project-card__link">
+          &#128279; 演示
+        </a>
+        {% endif %}
+        {% if project.source_url %}
+        <a href="{{ project.source_url }}"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="project-card__link">
+          &#128193; 源码
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-state__icon">&#128736;</div>
+  <h2 class="empty-state__title">暂无作品</h2>
+  <p class="empty-state__text">作品集正在建设中，敬请期待...</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if projects %}
+<script>
+/**
+ * 分类筛选交互
+ * 点击分类按钮时，通过 URL 参数 ?category=xxx 切换
+ * 当用户通过浏览器的前进/后退导航时，自动同步筛选状态
+ */
+document.addEventListener('DOMContentLoaded', function () {
+  var filterLinks = document.querySelectorAll('.cat-filter');
+
+  filterLinks.forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      // 让浏览器处理导航（保持语义化、支持浏览器历史）
+      // 默认的 <a> 行为会带我们到 href
+    });
+  });
+
+  // 当前页面的分类筛选标记已在服务端通过 current_category 完成，
+  // 不需要额外的 JS 筛选（服务端已按 ?category= 过滤）
+});
+</script>
+{% endif %}
+{% endblock %}

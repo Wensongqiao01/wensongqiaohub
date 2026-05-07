@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}测验记录 - {{ site_title }}{% endblock %}
+
+{% block content %}
+<h1 style="font-size: var(--text-2xl); font-weight: 700; margin: var(--space-8) 0 var(--space-4);">📊 测验记录</h1>
+
+{% if attempts %}
+<div style="max-width: 600px; margin: 0 auto;">
+  {% for attempt in attempts %}
+  <div class="card card--no-hover" style="margin-bottom: var(--space-4);">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <div style="font-weight: 500;">{{ attempt.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+        {% if attempt.player_name %}
+        <div style="font-size: var(--text-sm); color: var(--text-secondary);">玩家: {{ attempt.player_name }}</div>
+        {% endif %}
+      </div>
+      <div style="text-align: right;">
+        <div style="font-size: var(--text-xl); font-weight: 700; color: var(--accent);">
+          {{ attempt.score }} / {{ attempt.total }}
+        </div>
+        <div style="font-size: var(--text-sm); color: var(--text-secondary);">
+          {{ (attempt.score / attempt.total * 100) | round }}%
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-state__icon">📋</div>
+  <h2 class="empty-state__title">还没有测验记录</h2>
+  <p class="empty-state__text">快去试试你能答对多少吧！</p>
+  <a href="/quiz" class="btn btn--primary">开始测验</a>
+</div>
+{% endif %}
+{% endblock %}
